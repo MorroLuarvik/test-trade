@@ -1,0 +1,6 @@
+.directory
+.vscode
+*.*~
+*.pyc
+*.db
+config
