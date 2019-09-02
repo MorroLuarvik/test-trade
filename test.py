@@ -6,3 +6,5 @@ import sqlite3
 
 print('Hello from here')
 connection = sqlite3.connect(":memory:")
+
+connection.close()
