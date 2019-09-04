@@ -21,11 +21,11 @@ if not 'external_db' in config:
 	print('create external_db in config file')
 	exit()
 
-externalBbConfig = config['external_db']
+externalDbConfig = config['external_db']
 
 from externaldata import ExternalData
 
-datasource = ExternalData(**externalBbConfig)
+datasource = ExternalData(**externalDbConfig)
 if not datasource.hasPairStatistic(pairId):
 	print('Data Source not has statistic for pairId: ' + str(pairId))
 	exit()
@@ -37,6 +37,6 @@ dbFileName = dirName + os.path.sep + DB_DIR +  os.path.sep + DB_NAME
 from localdata import LocalData
 
 print("start import")
-datadest = LocalData(dbFileName)
+datadest = LocalData(dbFileName, pairId)
 datadest.addPairStatistic(datasource.getPairStatistic(pairId))
 print("complete import")
