@@ -18,20 +18,21 @@ connection = sqlite3.connect(dbFileName)
 
 import time
 
-def TStoStr(ts = 0, format = '%Y.%m.%d %H:%M:%S'):
+def TStoStr(ts = 0, format = "%Y.%m.%d %H:%M:%S"):
 	return time.strftime(format, time.localtime(ts))
 
-def StrToTS(strTime = 0, format = '%Y.%m.%d %H:%M:%S'):
+def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 	return int(time.mktime(time.strptime(strTime, format)))
 
-#TSTime = int(time.time()) # current timestamp
+query = """
+	select min(start_ts) min_ts, max(start_ts) max_ts
+	FROM s_trade_stats
+	where pair_id = 13
+"""
+cursor = connection.cursor()
 
-TSTime = 1567260000
-strTime = "2019.09.01 00:00:00"
-
-print(TSTime)
-print(strTime)
-print(StrToTS(strTime))
-print(TStoStr(TSTime))
+cursor.execute(query)
+rows = cursor.fetchall()
+print('has data from ' + TStoStr(rows[0][0]) + ' to ' + TStoStr(rows[0][1]))
 
 connection.close()
