@@ -39,5 +39,20 @@ class ExternalData:
 		
 		return False
 
+	def getPairStatistic(self, pairId = None):
+		if not type(pairId) is int:
+			return False
+		
+		query = """
+			SELECT *
+			FROM s_trade_stats
+			WHERE pair_id = {0}
+		""".format(pairId)
+
+		cursor = self.connect.cursor()
+
+		cursor.execute(query)
+		return cursor.fetchall()
+
 	def __del__(self):
 		self.connect.close()

@@ -1,15 +1,7 @@
 #!/usr/bin/env python
 #-*-coding:utf-8-*-
 
-from externaldata import ExternalData
-#from localbase import localBase
-
 pairId = 13 # ltc/btc exmo
-
-"""
-DB_DIR = 'db'
-DB_NAME = 'database.db'
-"""
 
 CONFIG_FILE_NAME = 'config.json'
 
@@ -31,9 +23,20 @@ if not 'external_db' in config:
 
 externalBbConfig = config['external_db']
 
+from externaldata import ExternalData
+
 datasource = ExternalData(**externalBbConfig)
 if not datasource.hasPairStatistic(pairId):
 	print('Data Source not has statistic for pairId: ' + str(pairId))
 	exit()
 
-print("continue")
+DB_DIR = 'db'
+DB_NAME = 'database.db'
+dbFileName = dirName + os.path.sep + DB_DIR +  os.path.sep + DB_NAME
+
+from localdata import LocalData
+
+print("start import")
+datadest = LocalData(dbFileName)
+datadest.addPairStatistic(datasource.getPairStatistic(pairId))
+print("complete import")
