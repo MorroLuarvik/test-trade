@@ -42,7 +42,7 @@ connect = MySQLdb.connect(
 
 connect.close()
 
-ERROR 2013 (HY000): Lost connection to MySQL server at 'reading initial communication packet', system error: 0
+#ERROR 2013 (HY000): Lost connection to MySQL server at 'reading initial communication packet', system error: 0
 
 import sqlite3
 
