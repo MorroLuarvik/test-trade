@@ -88,6 +88,30 @@ class LocalData:
 		
 		return False
 
+	def getTrades(self, startTS, endTS, timeDelta, pairId):
+		query = """
+			SELECT 
+				MIN(price_min) as min_price,
+				MAX(price_max) as max_price,
+				start_ts / {2} as time_mark,
+				(start_ts / {2}) * {2} as ts,
+				CAST(SUBSTR(MIN(start_ts || price_open), 12) AS DECIMAL(16, 5)) as open_price,
+				CAST(SUBSTR(MAX(end_ts || price_close), 12) AS DECIMAL(16, 5)) as close_price,
+				SUM(amount_sum) as volume
+			FROM 
+				s_trade_stats
+			WHERE
+				pair_id = {3} AND start_ts BETWEEN {0} AND {1}
+			GROUP BY
+				time_mark
+			ORDER BY
+				time_mark
+		""".format(startTS, endTS, timeDelta, pairId)
+		
+		cursor = self.connect.cursor()
+		cursor.execute(query) 
+		return cursor.fetchall()
+
 
 	def __del__(self):
 		self.connect.close()

@@ -36,3 +36,10 @@ rows = cursor.fetchall()
 print('has data from ' + TStoStr(rows[0][0]) + ' to ' + TStoStr(rows[0][1]))
 
 connection.close()
+
+print((31 / int(10)) * 10)
+
+from localdata import LocalData
+pairId = 13
+datasource = LocalData(dbFileName, pairId)
+print(datasource.getTrades(StrToTS('2019.09.01 00:00:00'), StrToTS('2019.09.01 23:59:59'), 3600, 13))
