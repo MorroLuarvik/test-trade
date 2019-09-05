@@ -87,6 +87,14 @@ class MainWindow:
 		print("columns :{0}".format(columns))
 		print((31 / int(10)) * 10) # округление меньшего значения
 	
+	def getTimeFrame(self):
+		""" возвращает выбранный таймфрейм в секундах """
+		pass
+
+	def getStartTS(self, ts):
+		""" возвращает стартовый TS в зависимости от ширины графика """
+		pass
+
 	def StrToTS(self, strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 		return int(time.mktime(time.strptime(strTime, format)))
 
