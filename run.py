@@ -156,8 +156,9 @@ class MainWindow:
 		canvas = self.displayItems["trade_graph"]
 		canvas.delete("all")
 		columns = (canvas.winfo_width() - self.marginRight) / self.candleWidth
-
 		startTS = self.getStartTS(ts, columns, self.getTimeFrame())
+		
+		"""
 		if startTS == self.oldStartTs:
 			localTS = self.getStartTS(ts, 3, self.getTimeFrame())
 			localCandleList = self.datasource.getTrades(localTS, ts, self.getTimeFrame(), self.pairId)
@@ -165,8 +166,9 @@ class MainWindow:
 			candleDict = self.oldCandleDict
 			candleDict.update(localCandleDict)
 		else:
-			candleList = self.datasource.getTrades(startTS, ts, self.getTimeFrame(), self.pairId)
-			candleDict = dict((c[3],c) for c in candleList)
+		"""
+		candleList = self.datasource.getTrades(startTS, ts, self.getTimeFrame(), self.pairId)
+		candleDict = dict((c[3],c) for c in candleList)
 
 		startDrawTime = time.time() # ======== draw time
 
@@ -182,8 +184,8 @@ class MainWindow:
 				candle = candleDict[dispalyTS]
 			self.drawCandle(canvas, (dispalyTS - startTS) / self.getTimeFrame() * self.candleWidth + 1, minPrice, maxPrice, candle)
 
-		self.oldCandleDict = candleDict
-		self.oldStartTs = startTS
+		#self.oldCandleDict = candleDict
+		#self.oldStartTs = startTS
 
 		print('get data time:' + str(startDrawTime - startTime))
 		print('draw time:' + str(time.time() - startDrawTime)) # ======== report time
