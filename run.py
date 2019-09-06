@@ -9,7 +9,7 @@ from localdata import LocalData
 
 class MainWindow:
 	pairId = 13
-	candleWidth = 4
+	candleWidth = 5
 	marginRight = 100
 	marginBottom = 30
 
@@ -107,7 +107,7 @@ class MainWindow:
 	def testButton(self, event):
 		""" тестовое событие """
 		self.currentTS = self.strToTS(self.displayItems["start_date"].get())
-		self.drawGraph(self.setCurrentTS)
+		self.drawGraph(self.currentTS)
 		return
 
 	def setCurrentTS(self, event):
@@ -116,22 +116,29 @@ class MainWindow:
 
 	def drawGraph(self, ts):
 		""" отображение графика торгов """
+
+		startTime = time.time()
+
 		canvas = self.displayItems["trade_graph"]
 		columns = (canvas.winfo_width() - self.marginRight) / self.candleWidth
 
-		startTS = self.getStartTS(self.currentTS, columns, self.getTimeFrame())
-		candleList = self.datasource.getTrades(startTS, self.currentTS, self.getTimeFrame(), self.pairId)
+		startTS = self.getStartTS(ts, columns, self.getTimeFrame())
+		candleList = self.datasource.getTrades(startTS, ts, self.getTimeFrame(), self.pairId)
+		startDrawTime = time.time()
 		if len(candleList) == 0:
 			print("not info for print")
 			return
 		minPrice = min((c[0] for c in candleList))
 		maxPrice = max((c[1] for c in candleList))
 		candleDict = dict((c[3],c) for c in candleList)
-		for dispalyTS in range(startTS, self.currentTS, self.getTimeFrame()):
+		for dispalyTS in range(startTS, ts, self.getTimeFrame()):
 			candle = None
 			if dispalyTS in candleDict:
 				candle = candleDict[dispalyTS]
 			self.drawCandle(canvas, (dispalyTS - startTS) / self.getTimeFrame() * self.candleWidth, minPrice, maxPrice, candle)
+
+		print('get data time:' + str(startDrawTime - startTime))
+		print('draw time:' + str(time.time() - startDrawTime))
 
 	def drawCandle(self, canvas, x, minPrice, maxPrice, candleInfo):
 		""" рисуем свечку """
