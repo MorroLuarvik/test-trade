@@ -81,6 +81,7 @@ class MainWindow:
 		self.currentTS = int(time.time())
 		self._createUI(UIConfig)
 		self.datasource = LocalData(dbFileName, self.pairId)
+		#self.datasource.migrateToMemory()
 
 
 	def start(self):

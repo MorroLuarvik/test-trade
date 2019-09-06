@@ -4,13 +4,22 @@
 import sqlite3
 
 class LocalData:
-	connect = None
+
+
+	curConnect = None
 	pairId = None
 	pairTableName = "s_trade_stats"
 
 	def __init__(self, dbFileName = None, pairId = 0):
 		self.pairId = pairId
-		self.connect = sqlite3.connect(dbFileName)
+		self.curConnect = sqlite3.connect(dbFileName)
+
+	def migrateToMemory(self):
+		tempConnect = sqlite3.connect(':memory:') # create a memory database
+		query = "".join(line for line in self.curConnect.iterdump())
+		tempConnect.executescript(query)
+		self.curConnect = tempConnect
+
 
 	def addPairStatistic(self, data = None):
 		if not self.hasPairStatTable():
@@ -23,11 +32,11 @@ class LocalData:
 			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		""".format(self.pairTableName)
 
-		cursor = self.connect.cursor()
+		cursor = self.curConnect.cursor()
 		for row in data:
 			inserted = row[:4] + (float(row[4]), ) + row[5:]
 			cursor.execute(query, inserted)
-			self.connect.commit()
+			self.curConnect.commit()
 
 	def hasPairStatTable(self):
 		return self.__hasTable(self.pairTableName)
@@ -52,9 +61,9 @@ class LocalData:
 			)
 		""".format(self.pairTableName)
 		
-		cursor = self.connect.cursor()
+		cursor = self.curConnect.cursor()
 		cursor.execute(query)
-		cursor = self.connect.commit()
+		cursor = self.curConnect.commit()
 	
 	def clearPairStatTable(self, pairId = None):
 		query = """
@@ -62,9 +71,9 @@ class LocalData:
 			WHERE pair_id = {1}
 		""".format(self.pairTableName, pairId)
 		
-		cursor = self.connect.cursor()
+		cursor = self.curConnect.cursor()
 		cursor.execute(query)
-		cursor = self.connect.commit()
+		cursor = self.curConnect.commit()
 
 	def __hasTable(self, tableName = None):
 		if not type(tableName) is str:
@@ -76,7 +85,7 @@ class LocalData:
 			WHERE type='table' AND name='{0}'
 		""".format(tableName)
 
-		cursor = self.connect.cursor()
+		cursor = self.curConnect.cursor()
 		cursor.execute(query) 
 		rows = cursor.fetchall()
 
@@ -108,10 +117,10 @@ class LocalData:
 				time_mark
 		""".format(startTS, endTS, timeDelta, pairId)
 		
-		cursor = self.connect.cursor()
+		cursor = self.curConnect.cursor()
 		cursor.execute(query) 
 		return cursor.fetchall()
 
 
 	def __del__(self):
-		self.connect.close()
+		self.curConnect.close()
