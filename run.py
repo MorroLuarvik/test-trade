@@ -14,6 +14,10 @@ class MainWindow:
 	marginBottom = 30
 
 	currentTS = None
+	runnerId = None
+
+	oldStartTs = None
+	oldCandleDict = None
 
 	def __init__(self, dbFileName):
 		self.displayItems = {}
@@ -67,6 +71,18 @@ class MainWindow:
 					"anchor": "nw"
 				}
 			},
+			"play_button": {
+				"create_order": 50,
+				"create_method": "Button",
+				"create": {
+					"master": "root", 
+					"text": "Play",
+				},
+				"pack": {
+					"side": "left",
+					"anchor": "nw"
+				}
+			},
 			"test_button": {
 				"create_order": 300,
 				"create_method": "Button",
@@ -104,12 +120,29 @@ class MainWindow:
 		self.displayItems["start_date"].delete(0, tk.END)
 		self.displayItems["start_date"].insert(0, self.TStoStr(self.currentTS))
 		self.displayItems["set_button"].bind("<Button-1>", self.setCurrentTS)
+		self.displayItems["play_button"].bind("<Button-1>", self.runTimer)
 
 	def testButton(self, event):
 		""" тестовое событие """
 		self.currentTS = self.strToTS(self.displayItems["start_date"].get())
 		self.drawGraph(self.currentTS)
 		return
+
+	def runTimer(self, event):
+		if self.runnerId is None:
+			event.widget.config(text="Pause")
+			self.runnerId = self.displayItems["root"].after(1000, self.updateGraph)
+		else:
+			self.displayItems["root"].after_cancel(self.runnerId)
+			event.widget.config(text="Play")
+			self.runnerId = None
+
+	def updateGraph(self):
+		self.drawGraph(self.currentTS)
+		self.currentTS += 300
+		self.displayItems["start_date"].delete(0, tk.END)
+		self.displayItems["start_date"].insert(0, self.TStoStr(self.currentTS))
+		self.runnerId = self.displayItems["root"].after(500, self.updateGraph)
 
 	def setCurrentTS(self, event):
 		""" установка времени в ручную """
@@ -118,28 +151,41 @@ class MainWindow:
 	def drawGraph(self, ts):
 		""" отображение графика торгов """
 
-		startTime = time.time()
+		startTime = time.time() # ======== enter time
 
 		canvas = self.displayItems["trade_graph"]
 		columns = (canvas.winfo_width() - self.marginRight) / self.candleWidth
 
 		startTS = self.getStartTS(ts, columns, self.getTimeFrame())
-		candleList = self.datasource.getTrades(startTS, ts, self.getTimeFrame(), self.pairId)
-		startDrawTime = time.time()
-		if len(candleList) == 0:
+		if startTS == self.oldStartTs:
+			localTS = self.getStartTS(ts, 3, self.getTimeFrame())
+			localCandleList = self.datasource.getTrades(localTS, ts, self.getTimeFrame(), self.pairId)
+			localCandleDict = dict((c[3],c) for c in localCandleList)
+			candleDict = self.oldCandleDict
+			candleDict.update(localCandleDict)
+		else:
+			candleList = self.datasource.getTrades(startTS, ts, self.getTimeFrame(), self.pairId)
+			candleDict = dict((c[3],c) for c in candleList)
+
+		startDrawTime = time.time() # ======== draw time
+
+		if len(candleDict) == 0:
 			print("not info for print")
 			return
-		minPrice = min((c[0] for c in candleList))
-		maxPrice = max((c[1] for c in candleList))
-		candleDict = dict((c[3],c) for c in candleList)
+		minPrice = min((candleDict[key][0] for key in candleDict))
+		maxPrice = max((candleDict[key][1] for key in candleDict))
+		
 		for dispalyTS in range(startTS, ts, self.getTimeFrame()):
 			candle = None
 			if dispalyTS in candleDict:
 				candle = candleDict[dispalyTS]
-			self.drawCandle(canvas, (dispalyTS - startTS) / self.getTimeFrame() * self.candleWidth, minPrice, maxPrice, candle)
+			self.drawCandle(canvas, (dispalyTS - startTS) / self.getTimeFrame() * self.candleWidth + 1, minPrice, maxPrice, candle)
+
+		self.oldCandleDict = candleDict
+		self.oldStartTs = startTS
 
 		print('get data time:' + str(startDrawTime - startTime))
-		print('draw time:' + str(time.time() - startDrawTime))
+		print('draw time:' + str(time.time() - startDrawTime)) # ======== report time
 
 	def drawCandle(self, canvas, x, minPrice, maxPrice, candleInfo):
 		""" рисуем свечку """
@@ -185,7 +231,7 @@ class MainWindow:
 
 	def getStartTS(self, ts, columns, timeFrame):
 		""" возвращает стартовый TS в зависимости от ширины графика """
-		startTs = ts - columns * timeFrame
+		startTs = ts - columns * timeFrame - 1
 		return (startTs / int(timeFrame)) * int(timeFrame)
 
 

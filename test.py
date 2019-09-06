@@ -24,24 +24,14 @@ def TStoStr(ts = 0, format = "%Y.%m.%d %H:%M:%S"):
 def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 	return int(time.mktime(time.strptime(strTime, format)))
 
-query = """
-	CREATE INDEX idx_pair_id
-	ON s_trade_stats (pair_id);
-"""
-#cursor = connection.cursor()
-#cursor.execute(query)
-#cursor = connection.commit()
-#exit()
+a ={1: 'a', 2: 'b', 3: 'c'}
+b ={3: 'ff', 4: 'ee'}
 
-query = """
-	CREATE INDEX idx_start_ts
-	ON s_trade_stats (start_ts);
-"""
-#cursor = connection.cursor()
-#cursor.execute(query)
-#cursor = connection.commit()
-
-#exit()
+print(a)
+print(b)
+a.update(b)
+print(a)
+exit()
 
 query = """
 	select min(start_ts) min_ts, max(start_ts) max_ts

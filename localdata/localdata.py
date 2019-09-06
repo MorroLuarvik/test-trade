@@ -44,27 +44,39 @@ class LocalData:
 	def createPairStatTable(self):
 		query = """
 			CREATE TABLE {0} (
-				pair_id,
-				start_ts,
-				end_ts,
-				cou,
-				price_open,
-				price_min,
-				price_max,
-				price_close,
-				amount_sum,
-				amount_2_sum,
-				price_sum,
-				price_2_sum,
-				volume_sum,
-				volume_2_sum
-			)
+				pair_id INTEGER,
+				start_ts INTEGER,
+				end_ts INTEGER,
+				cou INTEGER,
+				price_open REAL,
+				price_min REAL,
+				price_max REAL,
+				price_close REAL,
+				amount_sum REAL,
+				amount_2_sum REAL,
+				price_sum REAL,
+				price_2_sum REAL,
+				volume_sum REAL,
+				volume_2_sum REAL
+			);
 		""".format(self.pairTableName)
 		
 		cursor = self.curConnect.cursor()
 		cursor.execute(query)
 		cursor = self.curConnect.commit()
 	
+		query = """
+			CREATE INDEX pair_id_idx ON {0} (pair_id);
+		""".format(self.pairTableName)
+		
+		cursor = self.curConnect.cursor()
+		cursor.execute(query)
+		cursor = self.curConnect.commit()
+		
+		query = """
+			CREATE INDEX start_ts_idx ON {0} (start_ts);
+		""".format(self.pairTableName)
+
 	def clearPairStatTable(self, pairId = None):
 		query = """
 			DELETE FROM {0}
@@ -110,7 +122,7 @@ class LocalData:
 			FROM 
 				s_trade_stats
 			WHERE
-				pair_id = {3} AND start_ts BETWEEN {0} AND {1}
+				pair_id = {3} AND start_ts >= {0} AND start_ts < {1}
 			GROUP BY
 				time_mark
 			ORDER BY
