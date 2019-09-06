@@ -122,7 +122,7 @@ class LocalData:
 			FROM 
 				s_trade_stats
 			WHERE
-				pair_id = {3} AND start_ts >= {0} AND start_ts < {1}
+				pair_id = {3} AND start_ts > {0} AND start_ts <= {1}
 			GROUP BY
 				time_mark
 			ORDER BY

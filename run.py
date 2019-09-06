@@ -131,17 +131,17 @@ class MainWindow:
 	def runTimer(self, event):
 		if self.runnerId is None:
 			event.widget.config(text="Pause")
-			self.runnerId = self.displayItems["root"].after(1000, self.updateGraph)
+			self.runnerId = self.displayItems["root"].after(500, self.updateGraph)
 		else:
 			self.displayItems["root"].after_cancel(self.runnerId)
 			event.widget.config(text="Play")
 			self.runnerId = None
 
 	def updateGraph(self):
-		self.drawGraph(self.currentTS)
-		self.currentTS += 300
 		self.displayItems["start_date"].delete(0, tk.END)
 		self.displayItems["start_date"].insert(0, self.TStoStr(self.currentTS))
+		self.drawGraph(self.currentTS)
+		self.currentTS += 300
 		self.runnerId = self.displayItems["root"].after(500, self.updateGraph)
 
 	def setCurrentTS(self, event):
@@ -154,6 +154,7 @@ class MainWindow:
 		startTime = time.time() # ======== enter time
 
 		canvas = self.displayItems["trade_graph"]
+		canvas.delete("all")
 		columns = (canvas.winfo_width() - self.marginRight) / self.candleWidth
 
 		startTS = self.getStartTS(ts, columns, self.getTimeFrame())
@@ -231,7 +232,7 @@ class MainWindow:
 
 	def getStartTS(self, ts, columns, timeFrame):
 		""" возвращает стартовый TS в зависимости от ширины графика """
-		startTs = ts - columns * timeFrame - 1
+		startTs = ts - columns * timeFrame
 		return (startTs / int(timeFrame)) * int(timeFrame)
 
 
