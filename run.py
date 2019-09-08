@@ -37,15 +37,15 @@ class MainWindow:
 			params["create"]["master"] = self.displayItems[params["create"]["master"]]
 			self.displayItems[item_id] = getattr(tk, params["create_method"])(**params["create"])
 			self.displayItems[item_id].pack(**params["pack"])
+			if "binds" in params:
+				for action, functionName in params["binds"].items():
+					self.displayItems[item_id].bind(action, getattr(self, functionName))
 
 		for i in ("15m", "30m", "1H", "4H", "6H", "12H", "1D", "3D"):
 			self.displayItems["time_scale"].insert(tk.END, i)
 
-		self.displayItems["test_button"].bind("<Button-1>", self.testButton)
 		self.displayItems["start_date"].delete(0, tk.END)
 		self.displayItems["start_date"].insert(0, self.TStoStr(self.currentTS))
-		self.displayItems["set_button"].bind("<Button-1>", self.setCurrentTS)
-		self.displayItems["play_button"].bind("<Button-1>", self.runTimer)
 
 	def testButton(self, event):
 		""" тестовое событие """
