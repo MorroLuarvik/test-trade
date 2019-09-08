@@ -153,11 +153,11 @@ class LocalData:
 		cursor.execute(query) 
 		return cursor.fetchall()
 	
-	def getSigma(self, startTS, len, pairId):
+	def getSigma(self, TS, timeLen, pairId):
 		""" get sigma """
-		endTS = startTS - int(len) * self.SEC_ID_DAY
+		startTS = TS - int(timeLen) * self.SEC_ID_DAY
 
-		rows = self.getPriceStat(startTS, endTS, pairId)
+		rows = self.getPriceStat(startTS, TS, pairId)
 
 		if len(rows) > 0:
 			return (rows[0][1] / rows[0][0] - rows[0][2] * rows[0][2] / rows[0][0] / rows[0][0]) ** 0.5

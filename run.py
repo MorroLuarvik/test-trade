@@ -19,86 +19,11 @@ class MainWindow:
 	oldStartTs = None
 	oldCandleDict = None
 
-	def __init__(self, dbFileName):
+	def __init__(self, dbFileName, UIConfig):
 		self.displayItems = {}
-		UIConfig = {
-			"time_scale": {
-				"create_order": 10,
-				"create_method": "Listbox",
-				"create": {
-					"master": "root", 
-					"width": "5",
-					"selectmode": "single"
-				},
-				"pack": {
-					"side": "left",
-					"anchor": "nw"
-				}
-			},
-			"trade_graph": {
-				"create_order": 20,
-				"create_method": "Canvas",
-				"create": {
-					"master": "root", 
-					"bg": "white",
-					"height": "400"
-				},
-				"pack": {
-					"side": "top",
-					"fill": "x" 
-				}
-			}, 
-			"start_date": {
-				"create_order": 30,
-				"create_method": "Entry",
-				"create": {
-					"master": "root" 
-				},
-				"pack": {
-					"side": "left",
-					"anchor": "nw"
-				}
-			},
-			"set_button": {
-				"create_order": 40,
-				"create_method": "Button",
-				"create": {
-					"master": "root", 
-					"text": "Set",
-				},
-				"pack": {
-					"side": "left",
-					"anchor": "nw"
-				}
-			},
-			"play_button": {
-				"create_order": 50,
-				"create_method": "Button",
-				"create": {
-					"master": "root", 
-					"text": "Play",
-				},
-				"pack": {
-					"side": "left",
-					"anchor": "nw"
-				}
-			},
-			"test_button": {
-				"create_order": 300,
-				"create_method": "Button",
-				"create": {
-					"master": "root", 
-					"text": "Test",
-				},
-				"pack": {
-				}
-			}
-		}
 		self.currentTS = int(time.time())
 		self._createUI(UIConfig)
 		self.datasource = LocalData(dbFileName, self.pairId)
-		#self.datasource.migrateToMemory()
-
 
 	def start(self):
 		self.displayItems["root"].mainloop()
@@ -250,11 +175,22 @@ if __name__ == "__main__":
 	DB_DIR = 'db'
 	DB_NAME = 'database.db'
 
+	RES_DIR = 'res'
+	WINDOW_RES_NAME = 'window_config.json'
+
 	import os
 	dirName, fileName = os.path.split(os.path.abspath(__file__))
 
 	dbFileName = dirName + os.path.sep + DB_DIR +  os.path.sep + DB_NAME
-	mw = MainWindow(dbFileName)
+	resFileName = dirName + os.path.sep + RES_DIR +  os.path.sep + WINDOW_RES_NAME
+
+	import json
+	file = open(resFileName, 'r+')
+	windowConfig = json.load(file)
+	file.close()
+
+
+	mw = MainWindow(dbFileName, windowConfig)
 	mw.start()
 
 print("Bye!")
