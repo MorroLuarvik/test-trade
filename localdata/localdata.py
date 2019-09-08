@@ -10,6 +10,8 @@ class LocalData:
 	pairId = None
 	pairTableName = "s_trade_stats"
 
+	SEC_ID_DAY = 24 * 3600
+
 	def __init__(self, dbFileName = None, pairId = 0):
 		self.pairId = pairId
 		self.curConnect = sqlite3.connect(dbFileName)
@@ -110,6 +112,7 @@ class LocalData:
 		return False
 
 	def getTrades(self, startTS, endTS, timeDelta, pairId):
+		""" get trade candles """
 		query = """
 			SELECT 
 				MIN(price_min) as min_price,
@@ -132,6 +135,34 @@ class LocalData:
 		cursor = self.curConnect.cursor()
 		cursor.execute(query) 
 		return cursor.fetchall()
+
+	def getPriceStat(self, startTS, endTS, pairId):
+		""" get trade stat """
+		query = """
+			SELECT 
+				SUM(cou) as cou,
+				SUM(price_2_sum) as price_2_sum,
+				SUM(price_sum) as price_sum
+			FROM 
+				s_trade_stats
+			WHERE
+				pair_id = {2} AND start_ts >= {0} AND start_ts < {1}
+		""".format(startTS, endTS, pairId)
+		
+		cursor = self.curConnect.cursor()
+		cursor.execute(query) 
+		return cursor.fetchall()
+	
+	def getSigma(self, startTS, len, pairId):
+		""" get sigma """
+		endTS = startTS - int(len) * self.SEC_ID_DAY
+
+		rows = self.getPriceStat(startTS, endTS, pairId)
+
+		if len(rows) > 0:
+			return (rows[0][1] / rows[0][0] - rows[0][2] * rows[0][2] / rows[0][0] / rows[0][0]) ** 0.5
+
+		return 0
 
 
 	def __del__(self):

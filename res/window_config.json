@@ -1,0 +1,73 @@
+{
+    "time_scale": {
+        "create_order": 10,
+        "create_method": "Listbox",
+        "create": {
+            "master": "root", 
+            "width": "5",
+            "selectmode": "single"
+        },
+        "pack": {
+            "side": "left",
+            "anchor": "nw"
+        }
+    },
+    "trade_graph": {
+        "create_order": 20,
+        "create_method": "Canvas",
+        "create": {
+            "master": "root", 
+            "bg": "white",
+            "height": "400"
+        },
+        "pack": {
+            "side": "top",
+            "fill": "x" 
+        }
+    }, 
+    "start_date": {
+        "create_order": 30,
+        "create_method": "Entry",
+        "create": {
+            "master": "root" 
+        },
+        "pack": {
+            "side": "left",
+            "anchor": "nw"
+        }
+    },
+    "set_button": {
+        "create_order": 40,
+        "create_method": "Button",
+        "create": {
+            "master": "root", 
+            "text": "Set"
+        },
+        "pack": {
+            "side": "left",
+            "anchor": "nw"
+        }
+    },
+    "play_button": {
+        "create_order": 50,
+        "create_method": "Button",
+        "create": {
+            "master": "root", 
+            "text": "Play"
+        },
+        "pack": {
+            "side": "left",
+            "anchor": "nw"
+        }
+    },
+    "test_button": {
+        "create_order": 300,
+        "create_method": "Button",
+        "create": {
+            "master": "root", 
+            "text": "Test"
+        },
+        "pack": {
+        }
+    }
+}
