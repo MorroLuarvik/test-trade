@@ -7,7 +7,8 @@ class Exchange:
 	fee = 0.2
 	minPrice = 1e-8
 	maxPrice = 1
-	minAmount = 0.5
+	minAmount = 0.05
+	precision = 8
 
 	dataSource = None
 	pairId = None
@@ -35,8 +36,43 @@ class Exchange:
 			self._executeOrders(self.curTS, ts)
 		self.curTS = ts
 
-	def _executeOrders(self, startTS, endTs):
+	def _executeOrders(self, startTS, endTS):
 		""" выполнение ордеров """
+		minPrice, maxPrice = self._getMinMaxPrice(startTS, endTS)
+
+		print(minPrice, maxPrice)
+
+		if minPrice is False or minPrice is None:
+			return
+
+		for orderId in dict(filter(lambda item: item[1]['type'] == "buy" and item[1]['rate'] > minPrice, self.orders.items())):
+			self._executeOrder(orderId)
+		
+		for orderId in dict(filter(lambda item: item[1]['type'] == "sell" and item[1]['rate'] < maxPrice, self.orders.items())):
+			self._executeOrder(orderId)
+
+	def _executeOrder(self, orderId):
+		""" исполнение указанного ордера """
+		if not orderId in self.orders:
+			return False
+
+		if self.orders[orderId] == "buy":
+			self.users[self.orders[orderId]["user_id"]]["balance"]["sec"] += round(self.orders[orderId]["amount"] * self.orders[orderId]["price"] * (100 - self.fee) / 100, self.precision)
+			del self.orders[orderId]
+		else:
+			self.users[self.orders[orderId]["user_id"]]["balance"]["main"] += round(self.orders[orderId]["amount"] * (100 - self.fee) / 100, self.precision)
+			del self.orders[orderId]
+
+		return True
+		
+
+	def _getMinMaxPrice(self, startTS, endTS):
+		""" получение минимальной и максимальной цен за период """
+		rows = self.dataSource.getMinMaxTrades(startTS, endTS, self.pairId)
+		if len(rows) == 0:
+			return False, False
+
+		return rows[0][0], rows[0][1]
 
 	def register(self):
 		""" регистрация пользователя """
@@ -52,6 +88,9 @@ class Exchange:
 
 		if not "balance" in self.users[userId]:
 			self.users[userId]["balance"] = {}
+
+		if not "main" in self.users[userId]["balance"]:
+			self.users[userId]["balance"]["main"] = 0
 
 		if not "sec" in self.users[userId]["balance"]:
 			self.users[userId]["balance"]["sec"] = funds
@@ -105,7 +144,7 @@ class Exchange:
 			"amount": amount
 		}
 
-		return orderId
+		return orderId, "order created"
 
 	def cancelOrder(self, userId = 0, orderId = 0):
 		""" отмена ордера """
@@ -122,4 +161,4 @@ class Exchange:
 			self.users[userId]["balance"]["main"] += self.orders[orderId]["amount"]
 
 		del self.orders[orderId]
-		return True
+		return True, "order canceled"

@@ -138,6 +138,22 @@ class LocalData:
 		cursor = self.curConnect.cursor()
 		cursor.execute(query) 
 		return cursor.fetchall()
+	
+	def getMinMaxTrades(self, startTS, endTS, pairId):
+		""" get min and max trade values """
+		query = """
+			SELECT 
+				MIN(price_min) as min_price,
+				MAX(price_max) as max_price
+			FROM 
+				s_trade_stats
+			WHERE
+				pair_id = {2} AND start_ts >= {0} AND start_ts < {1}
+		""".format(startTS, endTS, pairId)
+		
+		cursor = self.curConnect.cursor()
+		cursor.execute(query) 
+		return cursor.fetchall()
 
 	def getPriceStat(self, startTS, endTS, pairId):
 		""" get trade stat """

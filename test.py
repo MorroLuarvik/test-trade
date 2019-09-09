@@ -29,37 +29,25 @@ print('sigma: ' + str(datasource.getSigma(StrToTS('2019.09.01 00:00:00'), 30, pa
 
 from exchange import Exchange
 curExch = Exchange(datasource, pairId)
-curExch.setTS(StrToTS("2018.01.01 00:00:00"))
+curExch.setTS(StrToTS("2018.05.01 00:00:00"))
 
 user1 = curExch.register()
-user2 = curExch.register()
 
-
-
-curExch.addFunds(user1, 10.0)
-curExch.addFunds(user2, 20)
-
-curExch.addFunds(user1, 5)
-curExch.addFunds(user2, .5)
-
-print(curExch.users)
-
-o1_1 = curExch.createOrder(user1, "buy", 0.05, 1)
-print(curExch.users)
-o1_2 = curExch.createOrder(user1, "buy", 0.04, 1)
-print(o1_1)
-
-o2_1 = curExch.createOrder(user2, "buy", 0.07, 1)
-o2_2 = curExch.createOrder(user2, "buy", 0.06, 1)
-print(o2_2)
-
+curExch.addFunds(user1, 0.02)
 print(curExch.users)
 print(curExch.orders)
 
-print("cancel order " + str(o1_2) + ": " + str(curExch.cancelOrder(user1, o1_2)))
+o1 = curExch.createOrder(user1, "buy", 0.015, 0.1)
+print(o1)
 
+print("after create order")
 print(curExch.users)
 print(curExch.orders)
 
+curExch.setTS(StrToTS("2018.06.01 00:00:00"))
+
+print("after change date")
+print(curExch.users)
+print(curExch.orders)
 
 #print(datasource.getTrades(StrToTS('2019.09.01 00:00:00'), StrToTS('2019.09.01 23:59:59'), 3600, 13))
