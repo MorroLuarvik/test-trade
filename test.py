@@ -27,4 +27,19 @@ pairId = 13
 datasource = LocalData(dbFileName, pairId)
 print('sigma: ' + str(datasource.getSigma(StrToTS('2019.09.01 00:00:00'), 30, pairId)))
 
+from exchange import Exchange
+curExch = Exchange(datasource, pairId)
+user1 = curExch.register()
+user2 = curExch.register()
+
+print(curExch.addFunds(user1, 10.0))
+print(curExch.addFunds(user2, 20))
+
+print(curExch.addFunds(user1, 5))
+print(curExch.addFunds(user2, .5))
+
+print(curExch.addFunds(99, .5))
+
+print(curExch.users)
+
 #print(datasource.getTrades(StrToTS('2019.09.01 00:00:00'), StrToTS('2019.09.01 23:59:59'), 3600, 13))
