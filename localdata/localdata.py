@@ -22,7 +22,6 @@ class LocalData:
 		tempConnect.executescript(query)
 		self.curConnect = tempConnect
 
-
 	def addPairStatistic(self, data = None):
 		if not self.hasPairStatTable():
 			self.createPairStatTable()
@@ -78,6 +77,10 @@ class LocalData:
 		query = """
 			CREATE INDEX start_ts_idx ON {0} (start_ts);
 		""".format(self.pairTableName)
+		
+		cursor = self.curConnect.cursor()
+		cursor.execute(query)
+		cursor = self.curConnect.commit()
 
 	def clearPairStatTable(self, pairId = None):
 		query = """

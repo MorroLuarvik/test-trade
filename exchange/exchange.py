@@ -101,7 +101,25 @@ class Exchange:
 			"user_id": userId,
 			"create_ts": self.curTS,
 			"type": orderType,
+			"rate": rate,
 			"amount": amount
 		}
 
 		return orderId
+
+	def cancelOrder(self, userId = 0, orderId = 0):
+		""" отмена ордера """
+		
+		if not orderId in self.orders:
+			return False, "Can't cancel order " + str(orderId) + ". Order not found."
+
+		if self.orders[orderId]['user_id'] <> userId:
+			return False, "Can't cancel order " + str(orderId) + ". It is not your order."
+
+		if self.orders[orderId]["type"] == "buy":
+			self.users[userId]["balance"]["sec"] += self.orders[orderId]["rate"] * self.orders[orderId]["amount"]
+		else:
+			self.users[userId]["balance"]["main"] += self.orders[orderId]["amount"]
+
+		del self.orders[orderId]
+		return True
