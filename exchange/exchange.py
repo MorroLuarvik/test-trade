@@ -64,7 +64,6 @@ class Exchange:
 			del self.orders[orderId]
 
 		return True
-		
 
 	def _getMinMaxPrice(self, startTS, endTS):
 		""" получение минимальной и максимальной цен за период """
@@ -162,3 +161,18 @@ class Exchange:
 
 		del self.orders[orderId]
 		return True, "order canceled"
+
+	def getActiveOrderIds(self, userId = 0):
+		""" получение списка id активных ордеров """
+		return dict(filter(lambda item: item[1]['user_id'] == userId, self.orders.items())).keys()
+
+	def getLastPrice(self):
+		""" получение последней цены согласно таймеру """
+		rows = self.dataSource.getLastPrice(self.curTS, self.pairId)
+		if len(rows) <= 0:
+			return False
+		
+		return rows[0][0]
+
+	def getTotalBalance(self):
+		""" получение последней цены согласно таймеру """

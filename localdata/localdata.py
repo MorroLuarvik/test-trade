@@ -154,6 +154,23 @@ class LocalData:
 		cursor = self.curConnect.cursor()
 		cursor.execute(query) 
 		return cursor.fetchall()
+	
+	def getLastPrice(self, TS, pairId):
+		""" получение цены закрытия согласно TS """
+		query = """
+			SELECT 
+				price_close
+			FROM 
+				s_trade_stats
+			WHERE
+				pair_id = {1} AND start_ts < {0}
+			ORDER BY start_ts DESC
+			LIMIT 1
+		""".format(TS, pairId)
+
+		cursor = self.curConnect.cursor()
+		cursor.execute(query) 
+		return cursor.fetchall()
 
 	def getPriceStat(self, startTS, endTS, pairId):
 		""" get trade stat """
@@ -171,7 +188,7 @@ class LocalData:
 		cursor = self.curConnect.cursor()
 		cursor.execute(query) 
 		return cursor.fetchall()
-	
+
 	def getSigma(self, TS, timeLen, pairId):
 		""" get sigma """
 		startTS = TS - int(timeLen) * self.SEC_ID_DAY
