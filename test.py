@@ -37,7 +37,7 @@ curExch.addFunds(user1, 0.02)
 
 print("start balance: " + str(curExch.getTotalBalance(user1)))
 
-o = curExch.createOrder(user1, "buy", 0.016, 0.1)
+o = curExch.createOrder(user1, "buy", 0.1, 0.016)
 print("after create buy order")
 print("balance: " + str(curExch.getTotalBalance(user1)))
 print(curExch.users)
@@ -51,7 +51,7 @@ print(curExch.users)
 print(curExch.orders)
 
 
-o = curExch.createOrder(user1, "sell", 0.0172, 0.0998)
+o = curExch.createOrder(user1, "sell", 0.0998, 0.0172)
 print("after create sell order")
 print("balance: " + str(curExch.getTotalBalance(user1)))
 print(curExch.users)

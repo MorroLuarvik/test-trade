@@ -40,8 +40,6 @@ class Exchange:
 		""" выполнение ордеров """
 		minPrice, maxPrice = self._getMinMaxPrice(startTS, endTS)
 
-		print(minPrice, maxPrice)
-
 		if minPrice is False or minPrice is None:
 			return
 
@@ -97,7 +95,7 @@ class Exchange:
 		self.users[userId]["balance"]["sec"] += funds
 		return True, "funds for user with id: " + str(userId) + " added successfull"
 
-	def createOrder(self, userId = 0, orderType = "buy", rate = 0, amount = 0):
+	def createOrder(self, userId = 0, orderType = "buy", amount = 0, rate = 0):
 		""" cоздание ордера """
 		if self.curTS is None:
 			return False, "exchange TS is not setted"
