@@ -56,12 +56,11 @@ class Exchange:
 		if not orderId in self.orders:
 			return False
 
-		if self.orders[orderId] == "buy":
-			self.users[self.orders[orderId]["user_id"]]["balance"]["sec"] += round(self.orders[orderId]["amount"] * self.orders[orderId]["price"] * (100 - self.fee) / 100, self.precision)
-			del self.orders[orderId]
-		else:
+		if self.orders[orderId]["type"] == "buy":
 			self.users[self.orders[orderId]["user_id"]]["balance"]["main"] += round(self.orders[orderId]["amount"] * (100 - self.fee) / 100, self.precision)
-			del self.orders[orderId]
+		else:
+			self.users[self.orders[orderId]["user_id"]]["balance"]["sec"] += round(self.orders[orderId]["amount"] * self.orders[orderId]["rate"] * (100 - self.fee) / 100, self.precision)
+		del self.orders[orderId]
 
 		return True
 
@@ -174,5 +173,10 @@ class Exchange:
 		
 		return rows[0][0]
 
-	def getTotalBalance(self):
+	def getTotalBalance(self, userId = 0):
 		""" получение последней цены согласно таймеру """
+		lastPrice = self.getLastPrice()
+		if not userId in self.users:
+			return False, "user with id: " + str(userId) + " is not registred"
+
+		return self.users[userId]["balance"]["sec"] + self.users[userId]["balance"]["main"] * lastPrice + sum(val["amount"] * val["rate"] for val in self.orders.values() if val["user_id"] == userId and val["type"] == "buy") + sum(val["amount"] * lastPrice for val in self.orders.values() if val["user_id"] == userId and val["type"] == "sell")
