@@ -16,19 +16,44 @@ class Bot:
 	pairId = None
 	curTS = None
 
+	curBot = None
+
 	def __init__(self, exchange = None, pairId = 0, botType = "cascade"):
 		self.exchange = exchange
 		self.pairId = pairId
 
+		#create bot dependet by botType var
+		self.curBot = Cascade(self.exchange, self.pairId)
+
+	def init(self, params = None):
+		""" иницализация бота """
+		if params is None:
+			self.curBot.setParams(**self._mutateParams(self.curBot.getParamsTempalte())) #TODO нужно предусмотреть результаты реального тестирования
+		else:
+			self.curBot.setParams(**params)
+
+		self.curBot.register()
+		self.curBot.addFunds()
+
+	def _mutateParams(self, paramsTemplate = None):
+		""" генерация параметров бота, пока используется залипуха для тестирования """
+		return {
+			"invest": 0.02,
+			"sigmaDays": 30,
+			"sigmaLength": 3.2,
+			"sigmaIndent": 0.15,
+			"profitPercent": 1.1,
+			"incInvest": 5,
+			"selfInvest": True
+		}
+
 	def reset(self):
 		""" сброс настроек """ 
 		self.curTS = None
+		self.curBot.reset()
 
 	def setTS(self, ts = None):
 		""" установка времени сервера """
 		if not self.curTS is None:
-			self._action()
+			self.curBot.setTS(ts) #за одно и бота запускаем
 		self.curTS = ts
-
-	def _action(self):
-		""" торговые действия бота """
