@@ -4,6 +4,8 @@
 
 class Exchange:
 
+	SEC_ID_DAY = 24 * 3600
+
 	fee = 0.2
 	minPrice = 1e-8
 	maxPrice = 1
@@ -170,6 +172,17 @@ class Exchange:
 			return False
 		
 		return rows[0][0]
+	
+	def getSigma(self, timeLen):
+		""" get sigma """
+		startTS = self.curTS - int(timeLen) * self.SEC_ID_DAY
+
+		rows = self.dataSource.getPriceStat(startTS, self.curTS, self.pairId)
+
+		if len(rows) > 0:
+			return (rows[0][1] / rows[0][0] - rows[0][2] * rows[0][2] / rows[0][0] / rows[0][0]) ** 0.5
+
+		return 0
 
 	def getTotalBalance(self, userId = 0):
 		""" получение последней цены согласно таймеру """
