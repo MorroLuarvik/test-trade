@@ -191,3 +191,16 @@ class Exchange:
 			return False, "user with id: " + str(userId) + " is not registred"
 
 		return self.users[userId]["balance"]["sec"] + self.users[userId]["balance"]["main"] * lastPrice + sum(val["amount"] * val["rate"] for val in self.orders.values() if val["user_id"] == userId and val["type"] == "buy") + sum(val["amount"] * lastPrice for val in self.orders.values() if val["user_id"] == userId and val["type"] == "sell")
+
+	# ================================== get trade params ================================== #
+	def getMinAmount(self):
+		""" get min amount in order """
+		return self.minAmount
+
+	def getFee(self):
+		""" get fee """
+		return self.fee
+
+	def getPrecision(self):
+		""" get precision """
+		return self.precision

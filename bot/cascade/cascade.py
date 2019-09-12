@@ -4,11 +4,15 @@
 
 class Cascade:
 
+	DECIMAL_PLACES = 8
+
+	"""
 	fee = 0.2
 	minPrice = 1e-8
 	maxPrice = 1
 	minAmount = 0.05
 	precision = 8
+	"""
 
 	exchange = None
 	pairId = None
@@ -17,16 +21,18 @@ class Cascade:
 	#параметры бота
 	invest = None
 	sigmaDays = None # кол-во дней, за которое высчитывается сигма
-	sigmaLength = None
-	sigmaIndent = None
+	sigmaLength = None # кол-во сигм
+	sigmaIndent = None # стартовый отступ
 	profitPercent = None
 	incInvest = None
 	selfInvest = None
+	maxStages = 150
 
 	#текущие хар-ки бота
 	botId = None #id бота на бирже
 	cascadeStruct = None
 	curSigma = None
+	curLastPrice = None
 	status = None
 	changeStatusTS = None
 
@@ -79,6 +85,8 @@ class Cascade:
 	def _action(self):
 		""" торговые действия бота """
 		self.curSigma = self.exchange.getSigma(self.sigmaDays)
+		self.curLastPrice = self.exchange.getLastPrice()
+
 		if self.cascadeStruct is None:
 			self.cascadeStruct = self.__createCascade()
 			self.status = 'waiting'
@@ -94,7 +102,6 @@ class Cascade:
 			if self.status <> 'inWork':
 				self.status = 'inWork'
 				self.changeStatusTS = self.curTS
-
 		# ================== check inWork status ================== #
 
 		# ================== restart cascade ================== #
@@ -138,30 +145,134 @@ class Cascade:
 			print('bot {1} error with moveProfitOrder in create order sequence: {0}'.format(error, self.botId)) #reportMoveProfitOrderError()
 		# ================== create order sequence ================== #
 
-
 	def __createCascade(self):
 		""" создание каскада согласно параметрам текущего класса """
-		pass # TODO realise
+		minInvest = self.exchange.getMinAmount() / (100 - self.exchange.getFee()) * 100 * (2.0 + self.incInvest) / 2.0
+		investDiv = minInvest * self.curLastPrice
+
+		startPrice = self.curLastPrice - self.sigmaIndent * self.curSigma
+		endPrice = self.curLastPrice - self.sigmaLength * self.curSigma
+
+		steps = min(int(self.invest / investDiv), self.maxStages)
+
+		investQuant = self.invest / float(steps)
+
+		investOrders = self.___getInvestOrders(startPrice, endPrice, steps, investQuant, self.incInvest)
+		return {
+			'investOrders': investOrders,
+			'profitOrders': self.___getProfitOrders(investOrders, [])
+		}
+
+	def ___getInvestOrders(self, startPrice, endPrice, steps, midInvest, incInvest = 0.0):
+		""" создание инвестиционных ордеров """
+		deltaPrice = (startPrice - endPrice) / float(steps)
+		startInvest = midInvest / (1 + incInvest / 2.0)
+		
+		investOrders = []
+		for stage in range(0, steps):
+			price = startPrice - deltaPrice * stage
+			invset = startInvest * (1 + incInvest * stage / (steps - 1)) 
+			investOrders.append({
+				'type': "buy",
+				'amount': round(invset / price, self.exchange.getPrecision()),
+				'price': round(price, self.DECIMAL_PLACES),
+				'invest': invset
+			})
+
+		return investOrders
+
+	def ___getProfitOrders(self, investOrders = None, profitOrders = []):
+		""" создание профитных ордеров """
+		profitAction = 'buy'
+	
+		invested = 0
+		accepted = 0
+		idx = 0
+		for order in investOrders:
+			accepted += order['amount'] * (100 - self.exchange.getFee()) / 100
+			invested += order['amount'] * order['price']
+			amount = accepted
+			price = invested / accepted * (100 + self.profitPercent) / 100
+			
+			idx += 1
+			if idx > len(profitOrders):
+				profitOrders.append({
+					'type': profitAction,
+					'amount': round(amount, self.exchange.getPrecision()),
+					'price': round(price, self.DECIMAL_PLACES)
+				})
+		return profitOrders
 
 	def __checkOrderStatus(self, cascadeStruct):
 		""" проверка состояния ордеров на бирже """
-		pass # TODO realise
+		orderIds = self.exchange.getActiveOrderIds(self.botId)
+		for order in cascadeStruct['investOrders']:
+			if self.___isActiveOrder(order) and not order['orderId'] in orderIds:
+				order['status'] = 1
+		
+		for order in cascadeStruct['profitOrders']:
+			if self.___isActiveOrder(order) and not order['orderId'] in orderIds:
+				order['status'] = 1
+		
+		return cascadeStruct, False
+
+	def ___isActiveOrder(self, order):
+		if 'orderId' in order and 'status' in order and order['status'] == 0:
+			return True
+		return False
+	
+	def ___isCreatedOrder(self, order):
+		if 'orderId' in order:
+			return True
+		return False
+	
+	def ___isCompleteOrder(self, order):
+		if 'orderId' in order and 'status' in order and order['status'] == 1:
+			return True
+		return False
 
 	def __inWork(self, cascadeStruct):
 		""" проверка состояния ордеров находимся ли мы в сделке """
-		pass # TODO realise
+		for order in cascadeStruct['investOrders']:
+			if self.___isCompleteOrder(order):
+				return True
+		
+		return False
 
 	def __needRestart(self, cascadeStruct):
 		""" проверка необходимости перезапуска каскада """
-		pass # TODO realise
+		if self.curLastPrice > cascadeStruct['investOrders'][0]['price'] + self.curSigma * self.sigmaIndent:
+			return True
+
+		return False
 
 	def __cancelOrders(self, cascadeStruct):
 		""" отмена ордеров каскада каскада """
-		pass # TODO realise
+		for order in cascadeStruct['investOrders']:
+			if self.___isActiveOrder(order):
+				res, error = self.exchange.cancelOrder(self.botId, order['orderId'])
+				if res:
+					order['status'] = 2
+				else:
+					return cascadeStruct, error
+		
+		for order in cascadeStruct['profitOrders']:
+			if self.___isActiveOrder(order):
+				res, error = self.exchange.cancelOrder(self.botId, order['orderId'])
+				if res:
+					order['status'] = 2
+				else:
+					return cascadeStruct, error
+		
+		return cascadeStruct, False
 
 	def __hasProfit(self, cascadeStruct): #sell order complete
 		""" исполнен ли ордер на продажу """
-		pass # TODO realise
+		for order in cascadeStruct['profitOrders']:
+			if self.___isCompleteOrder(order):
+				return True
+		
+		return False
 
 	def __reportProfit(self, cascadeStruct): #sell order complete
 		""" отчёт о получении профита """
