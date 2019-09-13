@@ -27,6 +27,7 @@ class Cascade:
 	incInvest = None
 	selfInvest = None
 	maxStages = 150
+	activeOrdersCount = 2
 
 	#текущие хар-ки бота
 	botId = None #id бота на бирже
@@ -275,28 +276,166 @@ class Cascade:
 		return False
 
 	def __reportProfit(self, cascadeStruct): #sell order complete
-		""" отчёт о получении профита """
-		pass # TODO realise
+		""" сообщаем о получении профита и увеличиваем инвестиции, если необходимо"""
+		investRatio = 1
+		profitRatio = (100 - self.exchange.getFee()) / 100
+		
+		cou = 0
+		invested = 0
+		for profitOrder in cascadeStruct['profitOrders']:
+			invested += cascadeStruct['investOrders'][cou]['price'] * cascadeStruct['investOrders'][cou]['amount'] * investRatio
+			if self.___isCompleteOrder(profitOrder):
+				profitVal = round(profitOrder['amount'] * profitOrder['price'] * profitRatio - invested, self.exchange.getPrecision())
+				print("bot {0} has profit {1}".format(self.botId, profitVal))
+				if self.selfInvest:
+					self.invest += profitVal
+				break
+			cou += 1
 
 	def __hasPartialExecution(self, cascadeStruct):
 		""" проверка частичного исполнения каскада """
-		pass # TODO realise
+		cou = 0
+		for profitOrder in cascadeStruct['profitOrders']:
+			if self.___isCompleteOrder(profitOrder):
+				break
+			cou += 1
+		
+		if cou == len(cascadeStruct['profitOrders']) - 1:
+			return False
+		
+		for investOrder in cascadeStruct['investOrders'][cou + 1:]:
+			if self.___isCompleteOrder(investOrder):
+				return True
+		
+		return False
 
 	def __resizeAfterProfit(self, cascadeStruct):
 		""" изменение каскада после частичного исполнения """
-		pass # TODO realise
+		cou = 0
+		for profitOrder in cascadeStruct['profitOrders']:
+			if self.___isCompleteOrder(profitOrder):
+				break
+			cou += 1
+		
+		cascadeStruct['investOrders'] = cascadeStruct['investOrders'][cou + 1:]
+		cascadeStruct['profitOrders'] = self.___getProfitOrders(cascadeStruct['investOrders'], [])
+		
+		return cascadeStruct
 
 	def __shiftOrders(self, cascadeStruct):
 		""" сдвиг ордеров согласно изменённым ценам """
-		pass # TODO realise
+		idx = -1
+		for order in cascadeStruct['investOrders']:
+			if not self.___isCreatedOrder(order):
+				break
+			idx += 1
+		
+		idx = max(idx, 0)
+		
+		if idx >= len(cascadeStruct['investOrders']) - 1: # all invest is created nothing to shift
+			return cascadeStruct
+	
+		endPriceDirect = -1
+	
+		startPrice = cascadeStruct['investOrders'][idx]['price']
+		endPrice = self.curLastPrice + self.sigmaLength * self.curSigma * endPriceDirect
+		
+		if endPrice > startPrice:
+			return cascadeStruct
+
+		steps = len(cascadeStruct['investOrders']) - idx
+		
+		cascadeStruct['investOrders'] = cascadeStruct['investOrders'][:idx + 1] + self.___resizeInvestOrders(cascadeStruct['investOrders'][idx:], startPrice, endPrice, steps)[1:]
+		
+		cascadeStruct['profitOrders'] = self.___getProfitOrders(cascadeStruct['investOrders'], cascadeStruct['profitOrders'][:idx + 1])
+	
+		return cascadeStruct
+
+	def ___resizeInvestOrders(self, orders, startPrice, endPrice, steps):
+		cou = 0
+		for order in orders:
+			order['price'] = round(startPrice + (endPrice - startPrice) * cou / float(steps-1), self.exchange.getPrecision())
+			invest = order['invest']
+			
+			amount = round(invest / order['price'], self.DECIMAL_PLACES)
+			
+			order['amount'] = amount
+			cou += 1
+		return orders
+
 
 	def __createOrders(self, cascadeStruct):
-		""" создание инвестиционных ордеро """
-		pass # TODO realise
+		""" создание инвестиционных ордеров """
+		ordersCount = 0
+		lastIdx = 0
+		for order in cascadeStruct['investOrders']:
+			if self.___isActiveOrder(order):
+				ordersCount += 1
+			if not self.___isCreatedOrder(order):
+				break
+			lastIdx += 1
+		
+		if lastIdx >= len(cascadeStruct['investOrders']): # all invest orders complete
+			return cascadeStruct, False
+		
+		for idx in range(lastIdx, lastIdx + self.activeOrdersCount - ordersCount):
+			if idx < len(cascadeStruct['investOrders']):
+				orderId, error = self.___createOrder(cascadeStruct['investOrders'][idx])
+				if orderId is False:
+					return cascadeStruct, error
+				else:
+					cascadeStruct['investOrders'][idx]['orderId'] = orderId
+					if orderId is 0:
+						cascadeStruct['investOrders'][idx]['status'] = 1
+					else:
+						cascadeStruct['investOrders'][idx]['status'] = 0
+		
+		return cascadeStruct, False
+
+	def ___createOrder(self, order):
+		""" создать ордер на бирже """
+		res, error = self.exchange.createOrder(self.botId, order['type'], order['amount'], order['price'])
+		if res:
+			return int(res['order_id']), False
+		else:
+			return False, error
 
 	def __moveProfitOrder(self, cascadeStruct):
 		""" отмена неактуального профитного ордера и создание актуального """
-		pass # TODO realise
+		if not self.___isCompleteOrder(cascadeStruct['investOrders'][0]): # no complete - no move
+			return cascadeStruct, False
+		
+		completeIdx = -1
+		for order in cascadeStruct['investOrders']:
+			if not self.___isCompleteOrder(order):
+				break
+			completeIdx += 1
+		
+		idx = 0
+		for order in cascadeStruct['profitOrders']: # cancel prev profit order
+			if self.___isActiveOrder(order) and idx < completeIdx:
+				res, error = self.exchange.cancelOrder(order['orderId'])
+				if res:
+					order['status'] = 2
+				else:
+					return cascadeStruct, error
+			idx += 1
+	
+		if self.___isCreatedOrder(cascadeStruct['profitOrders'][completeIdx]): # profit order already exists
+			return cascadeStruct, False
+			
+		orderId, error = self.___createOrder(cascadeStruct['profitOrders'][completeIdx])
+		if orderId is False:
+			return cascadeStruct, error
+		else:
+			cascadeStruct['profitOrders'][completeIdx]['orderId'] = orderId
+			if orderId is 0:
+				cascadeStruct['profitOrders'][completeIdx]['status'] = 1
+			else:
+				cascadeStruct['profitOrders'][completeIdx]['status'] = 0
+		
+		return cascadeStruct, False
+
 
 	def getParamsTempalte(self):
 		return {
