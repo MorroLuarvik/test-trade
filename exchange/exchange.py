@@ -159,6 +159,9 @@ class Exchange:
 			self.users[userId]["balance"]["main"] += self.orders[orderId]["amount"]
 
 		del self.orders[orderId]
+		
+		print("cancel order {0}".format(orderId))
+		
 		return True, "order canceled"
 
 	def getActiveOrderIds(self, userId = 0):

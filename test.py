@@ -25,11 +25,33 @@ def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 from localdata import LocalData
 pairId = 13
 datasource = LocalData(dbFileName, pairId)
-print('sigma: ' + str(datasource.getSigma(StrToTS('2019.09.01 00:00:00'), 30, pairId)))
+
+
+ts = StrToTS("2018.05.01 00:00:00")
 
 from exchange import Exchange
+from bot import Bot
 curExch = Exchange(datasource, pairId)
-curExch.setTS(StrToTS("2018.05.01 00:00:00"))
+bot = Bot(curExch, pairId)
+curExch.setTS(ts)
+
+bot.init()
+print(curExch.users)
+bot.setTS(ts)
+
+for i in range(4000):
+	ts += 1200
+	curExch.setTS(ts)
+	bot.setTS(ts)
+
+	print(TStoStr(ts) + ' last price ' + str(curExch.getLastPrice()))
+	print(curExch.users)
+	print(bot.curBot.status)
+	print(bot.curBot.cascadeStruct)
+
+exit()
+
+
 print("last price: " + str(curExch.getLastPrice()))
 
 user1 = curExch.register()

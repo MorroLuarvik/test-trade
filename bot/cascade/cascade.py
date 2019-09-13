@@ -65,7 +65,7 @@ class Cascade:
 
 	def addFunds(self):
 		""" Внесение средств бота на баланс """
-		if not self.botId is None:
+		if self.botId is None:
 			return False
 
 		res, message = self.exchange.addFunds(self.botId, self.invest)
@@ -133,6 +133,7 @@ class Cascade:
 					quit()
 				self.cascadeStruct = None
 				self.status = 'waiting'
+			return
 		# ================== cascade get profit ================== #
 
 		# ================== create order sequence ================== #
@@ -184,7 +185,7 @@ class Cascade:
 
 	def ___getProfitOrders(self, investOrders = None, profitOrders = []):
 		""" создание профитных ордеров """
-		profitAction = 'buy'
+		profitAction = 'sell'
 	
 		invested = 0
 		accepted = 0
@@ -243,6 +244,7 @@ class Cascade:
 	def __needRestart(self, cascadeStruct):
 		""" проверка необходимости перезапуска каскада """
 		if self.curLastPrice > cascadeStruct['investOrders'][0]['price'] + self.curSigma * self.sigmaIndent:
+			print("restart cascase")
 			return True
 
 		return False
@@ -377,7 +379,7 @@ class Cascade:
 		
 		if lastIdx >= len(cascadeStruct['investOrders']): # all invest orders complete
 			return cascadeStruct, False
-		
+
 		for idx in range(lastIdx, lastIdx + self.activeOrdersCount - ordersCount):
 			if idx < len(cascadeStruct['investOrders']):
 				orderId, error = self.___createOrder(cascadeStruct['investOrders'][idx])
@@ -385,18 +387,20 @@ class Cascade:
 					return cascadeStruct, error
 				else:
 					cascadeStruct['investOrders'][idx]['orderId'] = orderId
+					"""
 					if orderId is 0:
 						cascadeStruct['investOrders'][idx]['status'] = 1
 					else:
-						cascadeStruct['investOrders'][idx]['status'] = 0
+					"""
+					cascadeStruct['investOrders'][idx]['status'] = 0
 		
 		return cascadeStruct, False
 
 	def ___createOrder(self, order):
 		""" создать ордер на бирже """
-		res, error = self.exchange.createOrder(self.botId, order['type'], order['amount'], order['price'])
-		if res:
-			return int(res['order_id']), False
+		orderId, error = self.exchange.createOrder(self.botId, order['type'], order['amount'], order['price'])
+		if not orderId is False:
+			return orderId, False
 		else:
 			return False, error
 
@@ -414,7 +418,7 @@ class Cascade:
 		idx = 0
 		for order in cascadeStruct['profitOrders']: # cancel prev profit order
 			if self.___isActiveOrder(order) and idx < completeIdx:
-				res, error = self.exchange.cancelOrder(order['orderId'])
+				res, error = self.exchange.cancelOrder(self.botId, order['orderId'])
 				if res:
 					order['status'] = 2
 				else:
