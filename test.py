@@ -27,10 +27,8 @@ pairId = 13
 datasource = LocalData(dbFileName, pairId)
 
 
-ts = StrToTS("2018.05.01 00:00:00")
+ts = StrToTS("2019.02.01 00:00:00")
 
-def ceil(i, n):
-	return int(i * 10 ** n) / float(10 ** n)
 
 from exchange import Exchange
 from bot import Bot
@@ -48,9 +46,9 @@ for i in range(4000):
 	bot.setTS(ts)
 
 	print(TStoStr(ts) + ' last price ' + str(curExch.getLastPrice()))
-	print(curExch.users)
-	print(bot.curBot.status)
-	print(bot.curBot.cascadeStruct)
+	#print(curExch.users)
+	#print(bot.curBot.status)
+	#print(bot.curBot.cascadeStruct)
 
 exit()
 

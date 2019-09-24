@@ -40,8 +40,10 @@ class Cascade(AbstractBot):
 	changeStatusTS = None
 
 	def __init__(self, exchange = None, pairId = 0):
+		AbstractBot.__init__(self, exchange, pairId)
 		self.exchange = exchange
 		self.pairId = pairId
+		
 
 	def reset(self):
 		""" сброс настроек """ 
@@ -178,8 +180,8 @@ class Cascade(AbstractBot):
 			invset = startInvest * (1 + incInvest * stage / (steps - 1)) 
 			investOrders.append({
 				'type': "buy",
-				'amount': round(invset / price, self.exchange.getPrecision()),
-				'price': round(price, self.DECIMAL_PLACES),
+				'amount': self.ceil(invset / price, self.exchange.getPrecision()),
+				'price': self.ceil(price, self.DECIMAL_PLACES),
 				'invest': invset
 			})
 
@@ -202,8 +204,8 @@ class Cascade(AbstractBot):
 			if idx > len(profitOrders):
 				profitOrders.append({
 					'type': profitAction,
-					'amount': round(amount, self.exchange.getPrecision()),
-					'price': round(price, self.DECIMAL_PLACES)
+					'amount': self.ceil(amount, self.exchange.getPrecision()),
+					'price': self.ceil(price, self.DECIMAL_PLACES)
 				})
 		return profitOrders
 
@@ -211,34 +213,19 @@ class Cascade(AbstractBot):
 		""" проверка состояния ордеров на бирже """
 		orderIds = self.exchange.getActiveOrderIds(self.botId)
 		for order in cascadeStruct['investOrders']:
-			if self.___isActiveOrder(order) and not order['orderId'] in orderIds:
+			if self.isActiveOrder(order) and not order['orderId'] in orderIds:
 				order['status'] = 1
 		
 		for order in cascadeStruct['profitOrders']:
-			if self.___isActiveOrder(order) and not order['orderId'] in orderIds:
+			if self.isActiveOrder(order) and not order['orderId'] in orderIds:
 				order['status'] = 1
 		
 		return cascadeStruct, False
 
-	def ___isActiveOrder(self, order):
-		if 'orderId' in order and 'status' in order and order['status'] == 0:
-			return True
-		return False
-	
-	def ___isCreatedOrder(self, order):
-		if 'orderId' in order:
-			return True
-		return False
-	
-	def ___isCompleteOrder(self, order):
-		if 'orderId' in order and 'status' in order and order['status'] == 1:
-			return True
-		return False
-
 	def __inWork(self, cascadeStruct):
 		""" проверка состояния ордеров находимся ли мы в сделке """
 		for order in cascadeStruct['investOrders']:
-			if self.___isCompleteOrder(order):
+			if self.isCompleteOrder(order):
 				return True
 		
 		return False
@@ -254,7 +241,7 @@ class Cascade(AbstractBot):
 	def __cancelOrders(self, cascadeStruct):
 		""" отмена ордеров каскада каскада """
 		for order in cascadeStruct['investOrders']:
-			if self.___isActiveOrder(order):
+			if self.isActiveOrder(order):
 				res, error = self.exchange.cancelOrder(self.botId, order['orderId'])
 				if res:
 					order['status'] = 2
@@ -262,7 +249,7 @@ class Cascade(AbstractBot):
 					return cascadeStruct, error
 		
 		for order in cascadeStruct['profitOrders']:
-			if self.___isActiveOrder(order):
+			if self.isActiveOrder(order):
 				res, error = self.exchange.cancelOrder(self.botId, order['orderId'])
 				if res:
 					order['status'] = 2
@@ -274,7 +261,7 @@ class Cascade(AbstractBot):
 	def __hasProfit(self, cascadeStruct): #sell order complete
 		""" исполнен ли ордер на продажу """
 		for order in cascadeStruct['profitOrders']:
-			if self.___isCompleteOrder(order):
+			if self.isCompleteOrder(order):
 				return True
 		
 		return False
@@ -288,8 +275,8 @@ class Cascade(AbstractBot):
 		invested = 0
 		for profitOrder in cascadeStruct['profitOrders']:
 			invested += cascadeStruct['investOrders'][cou]['price'] * cascadeStruct['investOrders'][cou]['amount'] * investRatio
-			if self.___isCompleteOrder(profitOrder):
-				profitVal = round(profitOrder['amount'] * profitOrder['price'] * profitRatio - invested, self.exchange.getPrecision())
+			if self.isCompleteOrder(profitOrder):
+				profitVal = self.ceil(profitOrder['amount'] * profitOrder['price'] * profitRatio - invested, self.exchange.getPrecision())
 				print("bot {0} has profit {1}".format(self.botId, profitVal))
 				if self.selfInvest:
 					self.invest += profitVal
@@ -300,7 +287,7 @@ class Cascade(AbstractBot):
 		""" проверка частичного исполнения каскада """
 		cou = 0
 		for profitOrder in cascadeStruct['profitOrders']:
-			if self.___isCompleteOrder(profitOrder):
+			if self.isCompleteOrder(profitOrder):
 				break
 			cou += 1
 		
@@ -308,7 +295,7 @@ class Cascade(AbstractBot):
 			return False
 		
 		for investOrder in cascadeStruct['investOrders'][cou + 1:]:
-			if self.___isCompleteOrder(investOrder):
+			if self.isCompleteOrder(investOrder):
 				return True
 		
 		return False
@@ -317,7 +304,7 @@ class Cascade(AbstractBot):
 		""" изменение каскада после частичного исполнения """
 		cou = 0
 		for profitOrder in cascadeStruct['profitOrders']:
-			if self.___isCompleteOrder(profitOrder):
+			if self.isCompleteOrder(profitOrder):
 				break
 			cou += 1
 		
@@ -330,7 +317,7 @@ class Cascade(AbstractBot):
 		""" сдвиг ордеров согласно изменённым ценам """
 		idx = -1
 		for order in cascadeStruct['investOrders']:
-			if not self.___isCreatedOrder(order):
+			if not self.isCreatedOrder(order):
 				break
 			idx += 1
 		
@@ -358,10 +345,10 @@ class Cascade(AbstractBot):
 	def ___resizeInvestOrders(self, orders, startPrice, endPrice, steps):
 		cou = 0
 		for order in orders:
-			order['price'] = round(startPrice + (endPrice - startPrice) * cou / float(steps-1), self.exchange.getPrecision())
+			order['price'] = self.ceil(startPrice + (endPrice - startPrice) * cou / float(steps-1), self.exchange.getPrecision())
 			invest = order['invest']
 			
-			amount = round(invest / order['price'], self.DECIMAL_PLACES)
+			amount = self.ceil(invest / order['price'], self.DECIMAL_PLACES)
 			
 			order['amount'] = amount
 			cou += 1
@@ -373,9 +360,9 @@ class Cascade(AbstractBot):
 		ordersCount = 0
 		lastIdx = 0
 		for order in cascadeStruct['investOrders']:
-			if self.___isActiveOrder(order):
+			if self.isActiveOrder(order):
 				ordersCount += 1
-			if not self.___isCreatedOrder(order):
+			if not self.isCreatedOrder(order):
 				break
 			lastIdx += 1
 		
@@ -384,7 +371,7 @@ class Cascade(AbstractBot):
 
 		for idx in range(lastIdx, lastIdx + self.activeOrdersCount - ordersCount):
 			if idx < len(cascadeStruct['investOrders']):
-				orderId, error = self.___createOrder(cascadeStruct['investOrders'][idx])
+				orderId, error = self.createOrder(cascadeStruct['investOrders'][idx])
 				if orderId is False:
 					return cascadeStruct, error
 				else:
@@ -398,28 +385,20 @@ class Cascade(AbstractBot):
 		
 		return cascadeStruct, False
 
-	def ___createOrder(self, order):
-		""" создать ордер на бирже """
-		orderId, error = self.exchange.createOrder(self.botId, order['type'], order['amount'], order['price'])
-		if not orderId is False:
-			return orderId, False
-		else:
-			return False, error
-
 	def __moveProfitOrder(self, cascadeStruct):
 		""" отмена неактуального профитного ордера и создание актуального """
-		if not self.___isCompleteOrder(cascadeStruct['investOrders'][0]): # no complete - no move
+		if not self.isCompleteOrder(cascadeStruct['investOrders'][0]): # no complete - no move
 			return cascadeStruct, False
 		
 		completeIdx = -1
 		for order in cascadeStruct['investOrders']:
-			if not self.___isCompleteOrder(order):
+			if not self.isCompleteOrder(order):
 				break
 			completeIdx += 1
 		
 		idx = 0
 		for order in cascadeStruct['profitOrders']: # cancel prev profit order
-			if self.___isActiveOrder(order) and idx < completeIdx:
+			if self.isActiveOrder(order) and idx < completeIdx:
 				res, error = self.exchange.cancelOrder(self.botId, order['orderId'])
 				if res:
 					order['status'] = 2
@@ -427,10 +406,10 @@ class Cascade(AbstractBot):
 					return cascadeStruct, error
 			idx += 1
 	
-		if self.___isCreatedOrder(cascadeStruct['profitOrders'][completeIdx]): # profit order already exists
+		if self.isCreatedOrder(cascadeStruct['profitOrders'][completeIdx]): # profit order already exists
 			return cascadeStruct, False
 			
-		orderId, error = self.___createOrder(cascadeStruct['profitOrders'][completeIdx])
+		orderId, error = self.createOrder(cascadeStruct['profitOrders'][completeIdx])
 		if orderId is False:
 			return cascadeStruct, error
 		else:
