@@ -29,7 +29,7 @@ datasource = LocalData(dbFileName, pairId)
 
 ts = StrToTS("2019.02.01 00:00:00")
 checkTS = StrToTS("2019.03.30 00:00:00")
-endTS = StrToTS("2019.04.40 00:00:00")
+endTS = StrToTS("2019.04.30 00:00:00")
 
 
 from exchange import Exchange
