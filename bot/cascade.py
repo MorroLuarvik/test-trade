@@ -2,7 +2,9 @@
 #-*-coding:utf-8-*-
 """ Абстрактный бот, их тут много будет """
 
-class Cascade:
+from abstractbot import AbstractBot
+
+class Cascade(AbstractBot):
 
 	DECIMAL_PLACES = 8
 

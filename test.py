@@ -29,6 +29,9 @@ datasource = LocalData(dbFileName, pairId)
 
 ts = StrToTS("2018.05.01 00:00:00")
 
+def ceil(i, n):
+	return int(i * 10 ** n) / float(10 ** n)
+
 from exchange import Exchange
 from bot import Bot
 curExch = Exchange(datasource, pairId)
