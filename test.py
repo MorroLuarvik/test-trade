@@ -27,10 +27,11 @@ pairId = 13
 datasource = LocalData(dbFileName, pairId)
 
 
-ts = StrToTS("2019.02.01 00:00:00")
-checkTS = StrToTS("2019.03.30 00:00:00")
-endTS = StrToTS("2019.04.30 00:00:00")
+startTS = StrToTS("2019.03.01 00:00:00")
+checkTS = StrToTS("2019.03.31 00:00:00")
+endTS = StrToTS("2019.04.10 00:00:00")
 
+ts = startTS
 
 from exchange import Exchange
 from bot import Bot
@@ -43,21 +44,22 @@ bot.setTS(ts)
 
 startBalance = bot.curBot.getBalance()
 
+
 while ts < endTS:
 	ts += 1200
 	curExch.setTS(ts)
 	bot.setTS(ts)
 	
-	print(TStoStr(ts) + ' last price ' + str(curExch.getLastPrice()) + ' bot status: ' + str(bot.curBot.status) + " " + bot.curBot.getCascadeStatus())
+	print(TStoStr(ts) + ' bot status: ' + str(bot.curBot.status) + " " + bot.curBot.getCascadeStatus() + ' last price ' + str(curExch.getLastPrice()))
 
 	if ts > checkTS:
 		bot.curBot.autoRepeat = False
 
-print(curExch.users)
-print(bot.curBot.status)
-print(bot.curBot.cascadeStruct)
-print(startBalance)
-print(bot.curBot.getBalance())
-print((bot.curBot.getBalance() - startBalance) / startBalance * 100)
+
+print("start date: {0}, check date: {1}, change status date: {2}, end date: {3}".format(TStoStr(startTS), TStoStr(checkTS), TStoStr(bot.curBot.changeStatusTS), TStoStr(endTS)))
+profitPercent = round((bot.curBot.getBalance() - startBalance) / startBalance * 100, 2)
+print("start balance: {0}, end balance: {1}, profit: {2}%".format(startBalance, bot.curBot.getBalance(), profitPercent))
+
+
 
 exit()
