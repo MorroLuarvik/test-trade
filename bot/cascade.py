@@ -97,14 +97,12 @@ class Cascade(AbstractBot):
 			return "0/0"
 
 		idx = 0
-		complIdx = 0
 		for order in self.cascadeStruct['investOrders']:
-			idx += 1
-			if self.isCompleteOrder(order):
-				complIdx = idx
+			if self.isActiveOrder(order):
 				break
+			idx += 1
 
-		return str(complIdx) + "/" + str(len(self.cascadeStruct['investOrders']))
+		return str(idx) + "/" + str(len(self.cascadeStruct['investOrders']))
 
 	def _action(self):
 		""" торговые действия бота """
