@@ -28,6 +28,8 @@ datasource = LocalData(dbFileName, pairId)
 
 
 ts = StrToTS("2019.02.01 00:00:00")
+checkTS = StrToTS("2019.02.19 00:00:00")
+endTS = StrToTS("2019.02.20 00:00:00")
 
 
 from exchange import Exchange
@@ -37,55 +39,25 @@ bot = Bot(curExch, pairId)
 curExch.setTS(ts)
 
 bot.init()
-print(curExch.users)
 bot.setTS(ts)
 
-for i in range(4000):
+startBalance = bot.curBot.getBalance()
+
+while ts < endTS:
 	ts += 1200
 	curExch.setTS(ts)
 	bot.setTS(ts)
+	
+	print(TStoStr(ts) + ' last price ' + str(curExch.getLastPrice()) + ' bot status: ' + str(bot.curBot.status) + " " + bot.curBot.getCascadeStatus())
 
-	print(TStoStr(ts) + ' last price ' + str(curExch.getLastPrice()))
-	#print(curExch.users)
-	#print(bot.curBot.status)
-	#print(bot.curBot.cascadeStruct)
+	if ts > checkTS:
+		bot.curBot.autoRepeat = False
+
+print(curExch.users)
+print(bot.curBot.status)
+print(bot.curBot.cascadeStruct)
+print(startBalance)
+print(bot.curBot.getBalance())
+print((bot.curBot.getBalance() - startBalance) / startBalance * 100)
 
 exit()
-
-
-print("last price: " + str(curExch.getLastPrice()))
-
-user1 = curExch.register()
-curExch.addFunds(user1, 0.02)
-
-print("start balance: " + str(curExch.getTotalBalance(user1)))
-
-o = curExch.createOrder(user1, "buy", 0.1, 0.016)
-print("after create buy order")
-print("balance: " + str(curExch.getTotalBalance(user1)))
-print(curExch.users)
-print(curExch.orders)
-
-curExch.setTS(StrToTS("2018.05.13 00:00:00"))
-print("after change date")
-print("balance: " + str(curExch.getTotalBalance(user1)))
-print("last price: " + str(curExch.getLastPrice()))
-print(curExch.users)
-print(curExch.orders)
-
-
-o = curExch.createOrder(user1, "sell", 0.0998, 0.0172)
-print("after create sell order")
-print("balance: " + str(curExch.getTotalBalance(user1)))
-print(curExch.users)
-print(curExch.orders)
-
-curExch.setTS(StrToTS("2018.05.18 00:00:00"))
-print("after change date")
-print("balance: " + str(curExch.getTotalBalance(user1)))
-print("last price: " + str(curExch.getLastPrice()))
-print(curExch.users)
-print(curExch.orders)
-
-
-print("final balance: " + str(curExch.getTotalBalance(user1)))

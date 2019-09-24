@@ -30,6 +30,8 @@ class Cascade(AbstractBot):
 	selfInvest = None
 	maxStages = 150
 	activeOrdersCount = 2
+	
+	autoRepeat = True
 
 	#текущие хар-ки бота
 	botId = None #id бота на бирже
@@ -86,9 +88,29 @@ class Cascade(AbstractBot):
 		if not oldTS is None:
 			self._action()
 
+	def getBalance(self):
+		""" возвращает полный баланс на exchange """
+		return self.exchange.getTotalBalance(self.botId)
+
+	def getCascadeStatus(self):
+		if self.cascadeStruct is None:
+			return "0/0"
+
+		idx = 0
+		complIdx = 0
+		for order in self.cascadeStruct['investOrders']:
+			idx += 1
+			if self.isCompleteOrder(order):
+				complIdx = idx
+				break
+
+		return str(complIdx) + "/" + str(len(self.cascadeStruct['investOrders']))
 
 	def _action(self):
 		""" торговые действия бота """
+		if self.status == 'stopped':
+			return
+
 		self.curSigma = self.exchange.getSigma(self.sigmaDays)
 		self.curLastPrice = self.exchange.getLastPrice()
 
@@ -136,7 +158,10 @@ class Cascade(AbstractBot):
 					print('bot {1} error with cancelOrders in cascade get profit: {0}'.format(error, self.botId)) #reportCancelOrdersError()
 					quit()
 				self.cascadeStruct = None
-				self.status = 'waiting'
+				if self.autoRepeat:
+					self.status = 'waiting'
+				else:
+					self.status = 'stopped'
 			return
 		# ================== cascade get profit ================== #
 

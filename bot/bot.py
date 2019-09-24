@@ -38,7 +38,7 @@ class Bot:
 	def _mutateParams(self, paramsTemplate = None):
 		""" генерация параметров бота, пока используется залипуха для тестирования """
 		return {
-			"invest": 0.02,
+			"invest": 0.04,
 			"sigmaDays": 30,
 			"sigmaLength": 3.2,
 			"sigmaIndent": 0.15,
