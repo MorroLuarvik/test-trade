@@ -28,8 +28,8 @@ datasource = LocalData(dbFileName, pairId)
 
 
 startTS = StrToTS("2019.03.01 00:00:00")
-checkTS = StrToTS("2019.03.31 00:00:00")
-endTS = StrToTS("2019.04.10 00:00:00")
+checkTS = StrToTS("2019.05.31 00:00:00")
+endTS = StrToTS("2019.06.10 00:00:00")
 
 ts = startTS
 
