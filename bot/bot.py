@@ -39,7 +39,7 @@ class Bot:
 		""" генерация параметров бота, пока используется залипуха для тестирования """
 		return {
 			"invest": 0.04,
-			"sigmaDays": 28,
+			"sigmaDays": 21,
 			"sigmaLength": 3.2,
 			"sigmaIndent": 0.15,
 			"profitPercent": 1.1,
