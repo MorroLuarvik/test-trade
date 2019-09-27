@@ -51,6 +51,7 @@ class MainWindow:
 		""" тестовое событие """
 		self.currentTS = self.strToTS(self.displayItems["start_date"].get())
 		self.drawGraph(self.currentTS)
+
 		return
 
 	def runTimer(self, event):
@@ -112,8 +113,22 @@ class MainWindow:
 		#self.oldCandleDict = candleDict
 		#self.oldStartTs = startTS
 
+		self.drawPriceScale(canvas, minPrice, maxPrice)
+
 		print('get data time:' + str(startDrawTime - startTime))
 		print('draw time:' + str(time.time() - startDrawTime)) # ======== report time
+
+	def drawPriceScale(self, canvas, minPrice, maxPrice):
+		""" отображение шкалы цен """
+
+		priceDelta = maxPrice - minPrice
+
+		# ====================== тестируем отображение текста ====================== #
+		canvas = self.displayItems["trade_graph"]
+		canvas.create_text(100, 100, text="price delta: {0}".format(priceDelta),  justify=tk.LEFT) #, font="Verdana 14"
+		# ====================== тестируем отображение текста ====================== #
+
+		pass
 
 	def drawCandle(self, canvas, x, minPrice, maxPrice, candleInfo):
 		""" рисуем свечку """
