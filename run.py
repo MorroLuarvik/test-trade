@@ -130,8 +130,15 @@ class MainWindow:
 		scaleFix = 1
 		priceDeltaScale = int(math.log10(priceDelta)) - scaleFix
 
+		print(priceDelta / 10 ** priceDeltaScale)
+
+		if priceDelta / 10 ** priceDeltaScale < 2:
+			scaleFix = 2
+			priceDeltaScale = int(math.log10(priceDelta)) - scaleFix
+
 		print(minPrice * 10 ** -priceDeltaScale)
 		print(maxPrice * 10 ** -priceDeltaScale)
+		print(priceDelta / 10 ** priceDeltaScale)
 
 		x = canvas.winfo_width() - self.marginRight + self.candleWidth
 
