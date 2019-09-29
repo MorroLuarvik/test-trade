@@ -4,6 +4,7 @@
 
 import Tkinter as tk
 import time
+import math
 
 from localdata import LocalData
 
@@ -21,7 +22,7 @@ class MainWindow:
 
 	def __init__(self, dbFileName, UIConfig):
 		self.displayItems = {}
-		self.currentTS = int(time.time())
+		self.currentTS = self.strToTS("2019.01.01 0:0:0") #int(time.time())
 		self._createUI(UIConfig)
 		self.datasource = LocalData(dbFileName, self.pairId)
 
@@ -120,12 +121,30 @@ class MainWindow:
 
 	def drawPriceScale(self, canvas, minPrice, maxPrice):
 		""" отображение шкалы цен """
+		topY = 0
+		bottomY = canvas.winfo_height() - self.marginBottom
+		textMargin = 2
+		markHalfHeight = 4
 
 		priceDelta = maxPrice - minPrice
+		scaleFix = 1
+		priceDeltaScale = int(math.log10(priceDelta)) - scaleFix
+
+		print(minPrice * 10 ** -priceDeltaScale)
+		print(maxPrice * 10 ** -priceDeltaScale)
+
+		x = canvas.winfo_width() - self.marginRight + self.candleWidth
+
+		for priceMark in range(int(minPrice * 10 ** -priceDeltaScale), int(maxPrice * 10 ** -priceDeltaScale) + 1):
+			y = self.priceToY(topY, bottomY, maxPrice, minPrice, priceMark * 10 ** priceDeltaScale)
+			canvas.create_polygon(x, y, x + self.candleWidth, y - markHalfHeight, x + self.candleWidth, y + markHalfHeight) # triangle mark
+			canvas.create_text(x + self.candleWidth + textMargin, y, text=str(priceMark * 10 ** priceDeltaScale),  anchor=tk.W, justify=tk.LEFT)
+
+		debugText = "price delta: {0} \nprice delta scale: {1}\nmax price: {2}\nmin price: {3}".format(priceDelta, priceDeltaScale, maxPrice, minPrice)
 
 		# ====================== тестируем отображение текста ====================== #
 		canvas = self.displayItems["trade_graph"]
-		canvas.create_text(100, 100, text="price delta: {0}".format(priceDelta),  justify=tk.LEFT) #, font="Verdana 14"
+		canvas.create_text(200, 100, text=debugText,  justify=tk.LEFT) #, font="Verdana 14"
 		# ====================== тестируем отображение текста ====================== #
 
 		pass
