@@ -29,8 +29,10 @@ class Bot:
 		""" иницализация бота """
 		if params is None:
 			self.curBot.setParams(**self._mutateParams(self.curBot.getParamsTempalte())) #TODO нужно предусмотреть результаты реального тестирования
-		else:
-			self.curBot.setParams(**params)
+		else: # костыль для проверки множественности ботов
+			ownParams = self._mutateParams(self.curBot.getParamsTempalte())
+			ownParams["sigmaIndent"] = params
+			self.curBot.setParams(**ownParams)
 
 		self.curBot.register()
 		self.curBot.addFunds()
