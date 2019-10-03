@@ -59,3 +59,19 @@ class Bot:
 		if not self.curTS is None:
 			self.curBot.setTS(ts) #за одно и бота запускаем
 		self.curTS = ts
+
+	def getId(self):
+		""" возвращает id текущего бота """
+		return self.curBot.botId
+
+	def getStatus(self):
+		""" возвращает статус текущего бота """
+		return self.curBot.status
+
+	def setAutorepeat(self, autorepeat = True):
+		""" возвращает статус текущего бота """
+		self.curBot.autoRepeat = autorepeat
+
+	def getBalance(self):
+		""" возвращает баланс текущего бота в размере профитной валюты пересчитанный по текущему курсу (ts) """
+		return self.curBot.getBalance()

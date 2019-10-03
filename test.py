@@ -47,7 +47,7 @@ for bot in bots:
 	bot['bot'].init(sigmaIndent)
 	sigmaIndent = 0.1
 	bot['bot'].setTS(ts)
-	bot['startBalance'] = bot['bot'].curBot.getBalance()
+	bot['startBalance'] = bot['bot'].getBalance()
 	bot['status'] = None
 
 inWork = True
@@ -58,16 +58,15 @@ while inWork:
 		bot['bot'].setTS(ts)
 
 	print(TStoStr(ts) + ' last price ' + str(curExch.getLastPrice()))
-	#) + ' bot status: ' + str(bot.curBot.status) + " " + bot.curBot.getCascadeStatus() + ' last price ' + str(curExch.getLastPrice()))
 
 	for bot in bots:
-		if bot['status'] <> bot['bot'].curBot.status:
-			print("bot #{0} change status to {1}".format(bot['bot'].curBot.botId, bot['bot'].curBot.status))
-			bot['status'] = bot['bot'].curBot.status
+		if bot['status'] <> bot['bot'].getStatus():
+			print("bot #{0} change status to {1}".format(bot['bot'].getId(), bot['bot'].getStatus()))
+			bot['status'] = bot['bot'].getStatus()
 
 	if ts > endTS:
 		for bot in bots:
-			bot['bot'].curBot.autoRepeat = False
+			bot['bot'].setAutorepeat(False)
 
 	inWork = False
 	for bot in bots:
@@ -77,7 +76,7 @@ while inWork:
 print("start date: {0}, end date: {1}".format(TStoStr(startTS), TStoStr(endTS)))
 
 for bot in bots:
-	profitPercent = round((bot['bot'].curBot.getBalance() - bot['startBalance']) / bot['startBalance'] * 100, 2)
-	print("bot #{0} start balance: {1}, end balance: {2}, profit: {3}%".format(bot['bot'].curBot.botId, bot['startBalance'], bot['bot'].curBot.getBalance(), profitPercent))
+	profitPercent = round((bot['bot'].getBalance() - bot['startBalance']) / bot['startBalance'] * 100, 2)
+	print("bot #{0} start balance: {1}, end balance: {2}, profit: {3}%".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), profitPercent))
 
 exit()
