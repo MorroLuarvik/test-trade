@@ -452,36 +452,42 @@ class Cascade(AbstractBot):
 				"mutable": False
 			},
 			"sigmaDays": {
+				"default": 15,
 				"mutable": True,
 				"min": 5,
 				"max": 60,
 				"type": "int"
 			},
 			"sigmaLength": {
+				"default": 3.2,
 				"mutable": True,
 				"min": 0.5,
 				"max": 4,
 				"type": "float"
 			},
 			"sigmaIndent": {
+				"default": 0.15,
 				"mutable": True,
 				"min": 0,
 				"max": 2,
 				"type": "float"
 			},
 			"profitPercent": {
+				"default": 1.1,
 				"mutable": True,
 				"min": 0.01,
 				"max": 10,
 				"type": "float"
 			},
 			"incInvest": {
+				"default": 3,
 				"mutable": True,
 				"min": 0,
 				"max": 7,
 				"type": "int"
 			},
 			"selfInvest": {
+				"default": True,
 				"mutable": True,
 				"min": 0,
 				"max": 1,
