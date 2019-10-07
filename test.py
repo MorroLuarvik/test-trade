@@ -40,11 +40,12 @@ for cou in range(botsInGeneration):
 	bots.append({'bot': Bot(curExch, pairId)})
 mutate = Mutate()
 
-
+# ============== start here ==============
 ts = startTS
 curExch.reset()
 curExch.setTS(ts)
 
+# ============== set bot params ==============
 for bot in bots:
 	template = bot['bot'].getParamsTemplate()
 	bot['bot'].reset()
