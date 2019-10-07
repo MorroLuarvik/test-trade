@@ -61,6 +61,18 @@ class Cascade(AbstractBot):
 		self.incInvest = incInvest
 		self.selfInvest = selfInvest
 
+	def getParams(self):
+		""" возвращает словарь с парамтерами бота """
+		return {
+			'invest': self.invest,
+		'sigmaDays': self.sigmaDays,
+		'sigmaLength': self.sigmaLength,
+		'sigmaIndent': self.sigmaIndent,
+		'profitPercent': self.profitPercent,
+		'incInvest': self.incInvest,
+		'selfInvest': self.selfInvest
+		}
+
 	def register(self):
 		""" регистрация бота на бирже """
 		if not self.botId is None:
@@ -127,6 +139,15 @@ class Cascade(AbstractBot):
 			if self.status <> 'inWork':
 				self.status = 'inWork'
 				self.changeStatusTS = self.curTS
+		else:
+			if not self.autoRepeat:
+				self.cascadeStruct, error = self.__cancelOrders(self.cascadeStruct)
+				if error:
+					print('bot {1} error with cancelOrders in cascade get profit: {0}'.format(error, self.botId)) #reportCancelOrdersError()
+					quit()
+				self.cascadeStruct = None
+				self.status = 'stopped'
+				return
 		# ================== check inWork status ================== #
 
 		# ================== restart cascade ================== #
@@ -256,7 +277,7 @@ class Cascade(AbstractBot):
 	def __needRestart(self, cascadeStruct):
 		""" проверка необходимости перезапуска каскада """
 		if self.curLastPrice > cascadeStruct['investOrders'][0]['price'] + self.curSigma * self.sigmaIndent:
-			print("restart cascase")
+			print("bot# {0} restart cascase".format(self.botId))
 			return True
 
 		return False
@@ -444,11 +465,13 @@ class Cascade(AbstractBot):
 		
 		return cascadeStruct, False
 
+	def getChangeStatusTS(self):
+		return self.changeStatusTS
 
 	def getParamsTempalte(self):
 		return {
 			"invest": {
-				"default": 0.02,
+				"default": 0.04,
 				"mutable": False
 			},
 			"sigmaDays": {

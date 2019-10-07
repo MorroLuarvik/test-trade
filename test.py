@@ -25,27 +25,28 @@ def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 from localdata import LocalData
 pairId = 13
 datasource = LocalData(dbFileName, pairId)
+botsInGeneration = 10
 
-
-startTS = StrToTS("2019.03.01 00:00:00")
-endTS = StrToTS("2019.03.10 00:00:00")
+startTS = StrToTS("2018.11.01 00:00:00")
+endTS = StrToTS("2019.04.01 00:00:00")
 
 ts = startTS
 
 from exchange import Exchange
 from bot import Bot
+from bot.mutate import Mutate
 
 bots = []
 curExch = Exchange(datasource, pairId)
-bots.append({'bot': Bot(curExch, pairId)})
-bots.append({'bot': Bot(curExch, pairId)})
+for cou in range(botsInGeneration):
+	bots.append({'bot': Bot(curExch, pairId)})
+mutate = Mutate()
 
 curExch.setTS(ts)
 
-sigmaIndent = 0.15
 for bot in bots:
-	bot['bot'].init(sigmaIndent)
-	sigmaIndent = 0.1
+	template = bot['bot'].getParamsTemplate()
+	bot['bot'].init(**mutate.getRandomParams(template))
 	bot['bot'].setTS(ts)
 	bot['startBalance'] = bot['bot'].getBalance()
 	bot['status'] = None
@@ -73,10 +74,11 @@ while inWork:
 		if bot['status'] <> 'stopped':
 			inWork = True
 
-print("start date: {0}, end date: {1}".format(TStoStr(startTS), TStoStr(endTS)))
+print("start date: {0}, end date: {1}\r\n".format(TStoStr(startTS), TStoStr(endTS)))
 
 for bot in bots:
 	profitPercent = round((bot['bot'].getBalance() - bot['startBalance']) / bot['startBalance'] * 100, 2)
-	print("bot #{0} start balance: {1}, end balance: {2}, profit: {3}%".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), profitPercent))
+	print(bot['bot'].getParams())
+	print("bot #{0} start balance: {1}, end balance: {2}, profit: {3}%, complete date: {4}\r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), profitPercent, TStoStr(bot['bot'].getChangeStatusTS())))
 
 exit()

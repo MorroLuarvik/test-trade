@@ -25,14 +25,18 @@ class Bot:
 		#create bot dependet by botType var
 		self.curBot = Cascade(self.exchange, self.pairId)
 
-	def init(self, params = None):
-		""" иницализация бота """
+	def init(self, **params):
+		""" иницализация бота и установка параметров"""
+		self.curBot.setParams(**params)
+
+		"""
 		if params is None:
 			self.curBot.setParams(**self._mutateParams(self.curBot.getParamsTempalte())) #TODO нужно предусмотреть результаты реального тестирования
 		else: # костыль для проверки множественности ботов
 			ownParams = self._mutateParams(self.curBot.getParamsTempalte())
 			ownParams["sigmaIndent"] = params
 			self.curBot.setParams(**ownParams)
+		"""
 
 		self.curBot.register()
 		self.curBot.addFunds()
@@ -75,3 +79,14 @@ class Bot:
 	def getBalance(self):
 		""" возвращает баланс текущего бота в размере профитной валюты пересчитанный по текущему курсу (ts) """
 		return self.curBot.getBalance()
+
+	def getParamsTemplate(self):
+		""" возвращает шаблон параметров текущего бота """
+		return self.curBot.getParamsTempalte()
+
+	def getParams(self):
+		""" возвращает параметры текущего бота """
+		return self.curBot.getParams()
+
+	def getChangeStatusTS(self):
+		return self.curBot.getChangeStatusTS()
