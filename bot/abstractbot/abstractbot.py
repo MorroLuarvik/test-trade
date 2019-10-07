@@ -2,6 +2,8 @@
 #-*-coding:utf-8-*-
 """ Абстрактный бот базовые функции и всё такое """
 
+import time
+
 class AbstractBot:
 	exchange = None
 	pairId = None
@@ -38,3 +40,5 @@ class AbstractBot:
 		""" округление с отбрасыванием целого """ 
 		return int(i * 10 ** n) / float(10 ** n)
 
+	def TStoStr(self, ts = 0, format = "%Y.%m.%d %H:%M:%S"):
+		return time.strftime(format, time.localtime(ts))

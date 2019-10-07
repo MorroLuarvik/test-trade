@@ -72,6 +72,10 @@ class Bot:
 		""" возвращает статус текущего бота """
 		return self.curBot.status
 
+	def getTradeStatus(self):
+		""" возвращает состояние каскада """
+		return self.curBot.getCascadeStatus()
+
 	def setAutorepeat(self, autorepeat = True):
 		""" возвращает статус текущего бота """
 		self.curBot.autoRepeat = autorepeat

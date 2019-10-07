@@ -277,7 +277,7 @@ class Cascade(AbstractBot):
 	def __needRestart(self, cascadeStruct):
 		""" проверка необходимости перезапуска каскада """
 		if self.curLastPrice > cascadeStruct['investOrders'][0]['price'] + self.curSigma * self.sigmaIndent:
-			print("bot# {0} restart cascase".format(self.botId))
+			print("bot #{0} restart cascase at {1}".format(self.botId, self.TStoStr(self.curTS)))
 			return True
 
 		return False

@@ -30,6 +30,21 @@ class Mutate:
 
 		return ret
 
+	def mutateParams(self, paramsTemplate, params, qty = 1):
+		""" изменение случайных параметров в указанном количестве """
+		return params
+
+	def fusionParams(self, params1, params2):
+		""" слияние параметров """
+		ret = {}
+		for key in params1:
+			if random.randint(0, 1) == 0:
+				ret[key] = params1[key]
+			else:
+				ret[key] = params2[key]
+		
+		return ret
+
 	def _randomizeInt(self, minVal, maxVal):
 		return int(minVal + (maxVal - minVal) * random.random())
 

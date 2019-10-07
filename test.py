@@ -28,9 +28,7 @@ datasource = LocalData(dbFileName, pairId)
 botsInGeneration = 10
 
 startTS = StrToTS("2018.11.01 00:00:00")
-endTS = StrToTS("2019.04.01 00:00:00")
-
-ts = startTS
+endTS = StrToTS("2019.03.01 00:00:00")
 
 from exchange import Exchange
 from bot import Bot
@@ -42,14 +40,19 @@ for cou in range(botsInGeneration):
 	bots.append({'bot': Bot(curExch, pairId)})
 mutate = Mutate()
 
+
+ts = startTS
+curExch.reset()
 curExch.setTS(ts)
 
 for bot in bots:
 	template = bot['bot'].getParamsTemplate()
+	bot['bot'].reset()
 	bot['bot'].init(**mutate.getRandomParams(template))
 	bot['bot'].setTS(ts)
 	bot['startBalance'] = bot['bot'].getBalance()
 	bot['status'] = None
+	bot['tradeStatus'] = None
 
 inWork = True
 while inWork:
@@ -58,12 +61,17 @@ while inWork:
 	for bot in bots:
 		bot['bot'].setTS(ts)
 
-	print(TStoStr(ts) + ' last price ' + str(curExch.getLastPrice()))
+	lastPrice = str(curExch.getLastPrice())
 
 	for bot in bots:
 		if bot['status'] <> bot['bot'].getStatus():
-			print("bot #{0} change status to {1}".format(bot['bot'].getId(), bot['bot'].getStatus()))
+			print("bot #{0} change status to {1} at {2} last price: {3}".format(bot['bot'].getId(), bot['bot'].getStatus(), TStoStr(ts), lastPrice))
 			bot['status'] = bot['bot'].getStatus()
+
+	for bot in bots:
+		if bot['tradeStatus'] <> bot['bot'].getTradeStatus():
+			print("bot #{0} change trade status to {1} at {2} last price: {3}".format(bot['bot'].getId(), bot['bot'].getTradeStatus(), TStoStr(ts), lastPrice))
+			bot['tradeStatus'] = bot['bot'].getTradeStatus()
 
 	if ts > endTS:
 		for bot in bots:

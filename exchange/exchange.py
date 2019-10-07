@@ -160,7 +160,7 @@ class Exchange:
 
 		del self.orders[orderId]
 		
-		print("cancel order {0}".format(orderId))
+		#print("cancel order {0}".format(orderId))
 		
 		return True, "order canceled"
 
