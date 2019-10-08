@@ -34,11 +34,33 @@ from exchange import Exchange
 from bot import Bot
 from bot.mutate import Mutate
 
+# ============== init bot arrays ==============
 bots = []
 curExch = Exchange(datasource, pairId)
 for cou in range(botsInGeneration):
 	bots.append({'bot': Bot(curExch, pairId)})
 mutate = Mutate()
+
+# ============== init bot params ==============
+for bot in bots:
+	template = bot['bot'].getParamsTemplate()
+	bot['params'] = mutate.getRandomParams(template)
+
+
+template = bots[0]['bot'].getParamsTemplate()
+print(template)
+params1 = mutate.getRandomParams(template)
+params2 = mutate.getRandomParams(template)
+print("\r\nparams")
+print(params1)
+print(params2)
+fusedParams = mutate.fusionParams(template, params1, params2)
+print("\r\nfused params")
+print(fusedParams)
+mutatedParams = mutate.mutateParams(template, fusedParams)
+print("\r\nmutate fused params")
+print(mutatedParams)
+exit()
 
 # ============== start here ==============
 ts = startTS
@@ -47,13 +69,12 @@ curExch.setTS(ts)
 
 # ============== set bot params ==============
 for bot in bots:
-	template = bot['bot'].getParamsTemplate()
-	bot['bot'].reset()
-	bot['bot'].init(**mutate.getRandomParams(template))
-	bot['bot'].setTS(ts)
-	bot['startBalance'] = bot['bot'].getBalance()
 	bot['status'] = None
 	bot['tradeStatus'] = None
+	bot['bot'].reset()
+	bot['bot'].init(**bot['params'])
+	bot['bot'].setTS(ts)
+	bot['startBalance'] = bot['bot'].getBalance()
 
 inWork = True
 while inWork:

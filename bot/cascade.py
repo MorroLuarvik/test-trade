@@ -498,7 +498,7 @@ class Cascade(AbstractBot):
 			"profitPercent": {
 				"default": 1.1,
 				"mutable": True,
-				"min": 0.01,
+				"min": 0.02,
 				"max": 10,
 				"type": "float"
 			},

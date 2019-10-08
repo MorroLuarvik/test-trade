@@ -17,33 +17,53 @@ class Mutate:
 		""" получаем ВСЕ случайные параметры """
 		ret = {}
 		for key, item in paramsTemplate.items():
-			if item['mutable']:
-				randomizeFunction = '_randomizeFloat' #getattr(self, '__randomizeFloat')
-				if item['type'] == 'int':
-					randomizeFunction = '_randomizeInt' #getattr(self, '__randomizeInt')
-				if item['type'] == 'bool':
-					randomizeFunction = '_randomizeBool' #getattr(self, '__randomizeBool')
-				
-				ret[key] = getattr(self, randomizeFunction)(item['min'], item['max'])
-			else:
-				ret[key] = item['default']
+			ret[key] = self._getRandomParam(item)
 
 		return ret
 
 	def mutateParams(self, paramsTemplate, params, qty = 1):
 		""" изменение случайных параметров в указанном количестве """
+		
+		mutateKeys = []
+		for key in paramsTemplate:
+			if paramsTemplate[key]['mutable']:
+				mutateKeys.append(key)
+
+		for cou in range(qty):
+			curKey = mutateKeys[random.randint(0, len(mutateKeys) - 1)]
+			params[curKey] = self._getRandomParam(paramsTemplate[curKey])
+
 		return params
 
-	def fusionParams(self, params1, params2):
+	def fusionParams(self, paramsTemplate, params1, params2):
 		""" слияние параметров """
 		ret = {}
-		for key in params1:
+		for key in paramsTemplate:
+			if not paramsTemplate[key]['mutable']:
+				ret[key] = paramsTemplate[key]['default']
+				continue
 			if random.randint(0, 1) == 0:
 				ret[key] = params1[key]
 			else:
 				ret[key] = params2[key]
 		
 		return ret
+
+	def _getRandomParam(self, paramTemplate):
+		""" generate random param """
+		if paramTemplate['mutable']:
+			randomizeFunction = '_randomizeFloat' #getattr(self, '__randomizeFloat')
+			if paramTemplate['type'] == 'int':
+				randomizeFunction = '_randomizeInt' #getattr(self, '__randomizeInt')
+			if paramTemplate['type'] == 'bool':
+				randomizeFunction = '_randomizeBool' #getattr(self, '__randomizeBool')
+			
+			ret = getattr(self, randomizeFunction)(paramTemplate['min'], paramTemplate['max'])
+		else:
+			ret = paramTemplate['default']
+		
+		return ret
+
 
 	def _randomizeInt(self, minVal, maxVal):
 		return int(minVal + (maxVal - minVal) * random.random())
