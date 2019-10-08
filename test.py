@@ -46,7 +46,6 @@ for bot in bots:
 	template = bot['bot'].getParamsTemplate()
 	bot['params'] = mutate.getRandomParams(template)
 
-
 template = bots[0]['bot'].getParamsTemplate()
 print(template)
 params1 = mutate.getRandomParams(template)
