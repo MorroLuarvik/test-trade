@@ -110,4 +110,6 @@ for bot in bots:
 	print(bot['bot'].getParams())
 	print("bot #{0} start balance: {1}, end balance: {2}, profit: {3}%, complete date: {4}\r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), profitPercent, TStoStr(bot['bot'].getChangeStatusTS())))
 
+# sorted(self.items, key = lambda player: player.y) - пример сортировки
+
 exit()
