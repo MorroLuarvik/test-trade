@@ -27,8 +27,8 @@ pairId = 13
 datasource = LocalData(dbFileName, pairId)
 botsInGeneration = 10
 
-startTS = StrToTS("2018.11.01 00:00:00")
-endTS = StrToTS("2019.03.01 00:00:00")
+startTS = StrToTS("2019.04.01 00:00:00")
+endTS = StrToTS("2019.07.01 00:00:00")
 
 from exchange import Exchange
 from bot import Bot
@@ -59,7 +59,7 @@ print(fusedParams)
 mutatedParams = mutate.mutateParams(template, fusedParams)
 print("\r\nmutate fused params")
 print(mutatedParams)
-exit()
+#exit()
 
 # ============== start here ==============
 ts = startTS
