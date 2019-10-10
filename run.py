@@ -141,7 +141,7 @@ class MainWindow:
 				hours.append(ts)
 
 		displayDates = months
-		if len(days) < 10:
+		if len(days) < 15:
 			displayDates += days
 		
 		if len(hours) < 24:
