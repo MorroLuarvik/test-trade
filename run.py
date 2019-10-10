@@ -115,9 +115,63 @@ class MainWindow:
 		#self.oldStartTs = startTS
 
 		self.drawPriceScale(canvas, minPrice, maxPrice)
+		self.drawTimeScale(canvas, self.getTimeFrame(), ts)
 
 		print('get data time:' + str(startDrawTime - startTime))
 		print('draw time:' + str(time.time() - startDrawTime)) # ======== report time
+
+	def drawTimeScale(self, canvas, timeFrame, endTS):
+		""" отображение шкалы времени """
+		canvasWidth = canvas.winfo_width() - self.marginRight
+		startTS = endTS - canvasWidth / self.candleWidth * timeFrame
+		months = []
+		days = []
+		hours = []
+
+		#2019.12.31 23:59:59
+		#0    5  8  1  4  7
+
+		for ts in xrange(startTS / 3600 * 3600, endTS / 3600 * 3600, 3600):
+			dateStr = self.TStoStr(ts)
+			if dateStr[8:] == "01 00:00:00":
+				months.append(ts)
+			if dateStr[11:] == "00:00:00":
+				days.append(ts)
+			if dateStr[14:] == "00:00":
+				hours.append(ts)
+
+		displayDates = months
+		if len(days) < 10:
+			displayDates += days
+		
+		if len(hours) < 24:
+			displayDates += hours
+		
+		for ts in displayDates:
+			print(self.TStoStr(ts))
+			self.drawTimeMark(canvas, startTS, endTS, ts)
+
+		print("startTS: {0} ({1}), endTS: {2} ({3})".format(startTS, self.TStoStr(startTS), endTS, self.TStoStr(endTS)))
+
+		pass
+
+	def drawTimeMark(self, canvas, startTS, endTS, ts):
+		""" отображение метки времени """
+		displayDate = ""
+		dateStr = self.TStoStr(ts)
+		if dateStr[14:] == "00:00":
+			displayDate = dateStr[:16]
+		if dateStr[11:] == "00:00:00":
+			displayDate = dateStr[:10]
+		if dateStr[8:] == "01 00:00:00":
+			displayDate = dateStr[:7]
+
+		x = (canvas.winfo_width() - self.marginRight)  * (ts - startTS) / (endTS - startTS)
+		canvas.create_line(x + 3, canvas.winfo_height() - self.marginBottom + 2, x + 3, canvas.winfo_height() - self.marginBottom + 4)
+		canvas.create_text(x + 3, canvas.winfo_height() - self.marginBottom + 10, text=displayDate)
+
+		print(x, displayDate)
+
 
 	def drawPriceScale(self, canvas, minPrice, maxPrice):
 		""" отображение шкалы цен """
@@ -153,8 +207,6 @@ class MainWindow:
 		canvas = self.displayItems["trade_graph"]
 		canvas.create_text(200, 100, text=debugText,  justify=tk.LEFT) #, font="Verdana 14"
 		# ====================== тестируем отображение текста ====================== #
-
-		pass
 
 	def drawCandle(self, canvas, x, minPrice, maxPrice, candleInfo):
 		""" рисуем свечку """
