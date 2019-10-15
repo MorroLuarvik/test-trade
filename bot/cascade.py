@@ -116,6 +116,15 @@ class Cascade(AbstractBot):
 
 		return str(idx) + "/" + str(len(self.cascadeStruct['investOrders']))
 
+	def stop(self):
+		""" отмена всех ордеров и остановка каскада """
+		self.cascadeStruct, error = self.__cancelOrders(self.cascadeStruct)
+		if error:
+			print('bot {1} error with cancelOrders in stop action: {0}'.format(error, self.botId)) #reportCancelOrdersError()
+			quit()
+		self.cascadeStruct = None
+		self.status = 'stopped'
+
 	def _action(self):
 		""" торговые действия бота """
 		if self.status == 'stopped':
