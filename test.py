@@ -25,10 +25,11 @@ def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 from localdata import LocalData
 pairId = 13
 datasource = LocalData(dbFileName, pairId)
-botsInGeneration = 10
+botsInGeneration = 2
 
 startTS = StrToTS("2019.04.01 00:00:00")
-endTS = StrToTS("2019.07.01 00:00:00")
+endTS = StrToTS("2019.04.10 00:00:00")
+stopTS = StrToTS("2019.04.15 00:00:00")
 
 from exchange import Exchange
 from bot import Bot
@@ -45,21 +46,6 @@ mutate = Mutate()
 for bot in bots:
 	template = bot['bot'].getParamsTemplate()
 	bot['params'] = mutate.getRandomParams(template)
-
-template = bots[0]['bot'].getParamsTemplate()
-print(template)
-params1 = mutate.getRandomParams(template)
-params2 = mutate.getRandomParams(template)
-print("\r\nparams")
-print(params1)
-print(params2)
-fusedParams = mutate.fusionParams(template, params1, params2)
-print("\r\nfused params")
-print(fusedParams)
-mutatedParams = mutate.mutateParams(template, fusedParams)
-print("\r\nmutate fused params")
-print(mutatedParams)
-#exit()
 
 # ============== start here ==============
 ts = startTS
@@ -94,14 +80,24 @@ while inWork:
 			print("bot #{0} change trade status to {1} at {2} last price: {3}".format(bot['bot'].getId(), bot['bot'].getTradeStatus(), TStoStr(ts), lastPrice))
 			bot['tradeStatus'] = bot['bot'].getTradeStatus()
 
+	# ================ off autorepeat ================ #
 	if ts > endTS:
 		for bot in bots:
 			bot['bot'].setAutorepeat(False)
+	# ================ off autorepeat ================ #
+
+	if ts > stopTS:
+		for bot in bots:
+			if bot['status'] <> 'stopped':
+				bot['bot'].stop()
+
 
 	inWork = False
 	for bot in bots:
 		if bot['status'] <> 'stopped':
 			inWork = True
+
+	print(TStoStr(ts))
 
 print("start date: {0}, end date: {1}\r\n".format(TStoStr(startTS), TStoStr(endTS)))
 

@@ -58,6 +58,10 @@ class Bot:
 		self.curTS = None
 		self.curBot.reset()
 
+	def stop(self):
+		""" отмена ордеров и остановка бота """ 
+		self.curBot.stop()
+
 	def setTS(self, ts = None):
 		""" установка времени сервера """
 		if not self.curTS is None:
