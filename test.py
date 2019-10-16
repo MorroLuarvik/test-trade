@@ -25,8 +25,8 @@ def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 from localdata import LocalData
 pairId = 13
 datasource = LocalData(dbFileName, pairId)
-botsInGeneration = 6
-generatons = 10
+botsInGeneration = 5
+generatons = 14
 
 startTS = StrToTS("2019.04.08 00:00:00")
 endTS = StrToTS("2019.04.18 00:00:00") # endTS = StrToTS("2019.04.10 00:00:00")
