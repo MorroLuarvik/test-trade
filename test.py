@@ -25,7 +25,7 @@ def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 from localdata import LocalData
 pairId = 13
 datasource = LocalData(dbFileName, pairId)
-botsInGeneration = 2
+botsInGeneration = 5
 generatons = 3
 
 startTS = StrToTS("2019.04.01 00:00:00")
@@ -47,7 +47,6 @@ mutate = Mutate()
 for bot in bots:
 	template = bot['bot'].getParamsTemplate()
 	bot['params'] = mutate.getRandomParams(template)
-
 
 for generation in range(generatons):
 	print("generation# {0}".format(generation))
@@ -115,10 +114,23 @@ for generation in range(generatons):
 		print(bot['bot'].getParams())
 		print("bot #{0} start balance: {1}, end balance: {2}, profit: {3}%, complete date: {4}, change status counts: {5} \r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), profitPercent, TStoStr(bot['bot'].getChangeStatusTS()), bot['changeStatusCounter']))
 
-	# ================== debug ================== #
-	print(bots)
-	# ================== debug ================== #
+	# =============== arrange params by profit percent =============== #
+	sortedParams = []
+	for item in sorted(bots, key=lambda item: item['profitPercent'], reverse=True): # TODO change profitPercent 2 weight
+		sortedParams.append(item['params'])
+	# =============== arrange params by profit percent =============== #
 
-	# sorted(self.items, key = lambda player: player.y) - пример сортировки
+	# =============== fuse and mutate params =============== #
+	for idx in xrange(len(sortedParams) / 2):
+		template = bots[idx]['bot'].getParamsTemplate()
+		sortedParams[-idx - 1] = mutate.mutateParams(template, mutate.fusionParams(template, sortedParams[idx], sortedParams[idx + 1]))
+	# =============== fuse and mutate params =============== #
+	
+	# =============== set mutated params to bots =============== #
+	idx = 0
+	for bot in bots:
+		bot['params'] = sortedParams[idx]
+		idx += 1
+	# =============== set mutated params to bots =============== #
 
 exit()
