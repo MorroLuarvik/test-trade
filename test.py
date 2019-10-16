@@ -25,11 +25,12 @@ def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 from localdata import LocalData
 pairId = 13
 datasource = LocalData(dbFileName, pairId)
-botsInGeneration = 4
+botsInGeneration = 2
+generatons = 3
 
 startTS = StrToTS("2019.04.01 00:00:00")
-endTS = StrToTS("2019.04.10 00:00:00")
-stopTS = StrToTS("2019.04.15 00:00:00")
+endTS = StrToTS("2019.04.05 00:00:00") # endTS = StrToTS("2019.04.10 00:00:00")
+stopTS = StrToTS("2019.04.10 00:00:00") # stopTS = StrToTS("2019.04.15 00:00:00")
 
 from exchange import Exchange
 from bot import Bot
@@ -47,74 +48,77 @@ for bot in bots:
 	template = bot['bot'].getParamsTemplate()
 	bot['params'] = mutate.getRandomParams(template)
 
-# ============== start here ==============
-ts = startTS
-curExch.reset()
-curExch.setTS(ts)
 
-# ============== set bot params ==============
-for bot in bots:
-	bot['status'] = None
-	bot['tradeStatus'] = None
-	bot['changeStatusCounter'] = 0
-	bot['changeStatusTS'] = startTS
-	bot['bot'].reset()
-	bot['bot'].init(**bot['params'])
-	bot['bot'].setTS(ts)
-	bot['startBalance'] = bot['bot'].getBalance()
-
-inWork = True
-while inWork:
-	ts += 1200
+for generation in range(generatons):
+	print("generation# {0}".format(generation))
+	# ============== start here ==============
+	ts = startTS
+	curExch.reset()
 	curExch.setTS(ts)
+
+	# ============== set bot params ==============
 	for bot in bots:
+		bot['status'] = None
+		bot['tradeStatus'] = None
+		bot['changeStatusCounter'] = 0
+		bot['changeStatusTS'] = startTS
+		bot['bot'].reset()
+		bot['bot'].init(**bot['params'])
 		bot['bot'].setTS(ts)
+		bot['startBalance'] = bot['bot'].getBalance()
 
-	lastPrice = str(curExch.getLastPrice())
-
-	for bot in bots:
-		if bot['status'] <> bot['bot'].getStatus():
-			print("bot #{0} change status to {1} at {2} last price: {3}".format(bot['bot'].getId(), bot['bot'].getStatus(), TStoStr(ts), lastPrice))
-			bot['status'] = bot['bot'].getStatus()
-			bot['changeStatusCounter'] += 1
-
-	for bot in bots:
-		if bot['tradeStatus'] <> bot['bot'].getTradeStatus():
-			print("bot #{0} change trade status to {1} at {2} last price: {3}".format(bot['bot'].getId(), bot['bot'].getTradeStatus(), TStoStr(ts), lastPrice))
-			bot['tradeStatus'] = bot['bot'].getTradeStatus()
-
-	# ================ off autorepeat ================ #
-	if ts > endTS:
+	inWork = True
+	while inWork:
+		ts += 1200
+		curExch.setTS(ts)
 		for bot in bots:
-			bot['bot'].setAutorepeat(False)
-	# ================ off autorepeat ================ #
+			bot['bot'].setTS(ts)
 
-	if ts > stopTS:
+		lastPrice = str(curExch.getLastPrice())
+
+		for bot in bots:
+			if bot['status'] <> bot['bot'].getStatus():
+				print("bot #{0} change status to {1} at {2} last price: {3}".format(bot['bot'].getId(), bot['bot'].getStatus(), TStoStr(ts), lastPrice))
+				bot['status'] = bot['bot'].getStatus()
+				bot['changeStatusCounter'] += 1
+
+		for bot in bots:
+			if bot['tradeStatus'] <> bot['bot'].getTradeStatus():
+				print("bot #{0} change trade status to {1} at {2} last price: {3}".format(bot['bot'].getId(), bot['bot'].getTradeStatus(), TStoStr(ts), lastPrice))
+				bot['tradeStatus'] = bot['bot'].getTradeStatus()
+
+		# ================ off autorepeat ================ #
+		if ts > endTS:
+			for bot in bots:
+				bot['bot'].setAutorepeat(False)
+		# ================ off autorepeat ================ #
+
+		if ts > stopTS:
+			for bot in bots:
+				if bot['status'] <> 'stopped':
+					bot['bot'].stop()
+
+
+		inWork = False
 		for bot in bots:
 			if bot['status'] <> 'stopped':
-				bot['bot'].stop()
+				inWork = True
 
+		print(TStoStr(ts) + "\r"), 
 
-	inWork = False
+	print("start date: {0}, end date: {1}\r\n".format(TStoStr(startTS), TStoStr(endTS)))
+
 	for bot in bots:
-		if bot['status'] <> 'stopped':
-			inWork = True
+		profitPercent = round((bot['bot'].getBalance() - bot['startBalance']) / bot['startBalance'] * 100, 2)
+		bot['profitPercent'] = profitPercent
+		bot['changeStatusTS'] = bot['bot'].getChangeStatusTS()
+		print(bot['bot'].getParams())
+		print("bot #{0} start balance: {1}, end balance: {2}, profit: {3}%, complete date: {4}, change status counts: {5} \r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), profitPercent, TStoStr(bot['bot'].getChangeStatusTS()), bot['changeStatusCounter']))
 
-	print(TStoStr(ts) + "\r"), 
+	# ================== debug ================== #
+	print(bots)
+	# ================== debug ================== #
 
-print("start date: {0}, end date: {1}\r\n".format(TStoStr(startTS), TStoStr(endTS)))
-
-for bot in bots:
-	profitPercent = round((bot['bot'].getBalance() - bot['startBalance']) / bot['startBalance'] * 100, 2)
-	bot['profitPercent'] = profitPercent
-	bot['changeStatusTS'] = bot['bot'].getChangeStatusTS()
-	print(bot['bot'].getParams())
-	print("bot #{0} start balance: {1}, end balance: {2}, profit: {3}%, complete date: {4}, change status counts: {5} \r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), profitPercent, TStoStr(bot['bot'].getChangeStatusTS()), bot['changeStatusCounter']))
-
-# ================== debug ================== #
-print(bots)
-# ================== debug ================== #
-
-# sorted(self.items, key = lambda player: player.y) - пример сортировки
+	# sorted(self.items, key = lambda player: player.y) - пример сортировки
 
 exit()

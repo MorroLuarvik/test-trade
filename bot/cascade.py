@@ -50,6 +50,15 @@ class Cascade(AbstractBot):
 		""" сброс настроек """ 
 		self.curTS = None
 
+		self.autoRepeat = True
+	
+		self.botId = None #id бота на бирже
+		self.cascadeStruct = None
+		self.curSigma = None
+		self.curLastPrice = None
+		self.status = None
+		self.changeStatusTS = None
+
 	def setParams(self, invest = None, sigmaDays = None, sigmaLength = None, sigmaIndent = None, profitPercent = None, incInvest = None, selfInvest = None):
 		""" установка параметров бота """
 		self.invest = invest

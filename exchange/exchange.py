@@ -29,6 +29,7 @@ class Exchange:
 		""" сброс настроек """ 
 		Exchange.nextUserId = 0
 		Exchange.nextOrderId = 0
+		self.curTS = None
 		self.users = {}
 		self.orders = {}
 
