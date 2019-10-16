@@ -26,7 +26,7 @@ from localdata import LocalData
 pairId = 13
 datasource = LocalData(dbFileName, pairId)
 botsInGeneration = 5
-generatons = 3
+generatons = 5
 
 startTS = StrToTS("2019.04.01 00:00:00")
 endTS = StrToTS("2019.04.05 00:00:00") # endTS = StrToTS("2019.04.10 00:00:00")
