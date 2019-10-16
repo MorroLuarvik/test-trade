@@ -25,7 +25,7 @@ def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 from localdata import LocalData
 pairId = 13
 datasource = LocalData(dbFileName, pairId)
-botsInGeneration = 2
+botsInGeneration = 4
 
 startTS = StrToTS("2019.04.01 00:00:00")
 endTS = StrToTS("2019.04.10 00:00:00")
@@ -56,6 +56,8 @@ curExch.setTS(ts)
 for bot in bots:
 	bot['status'] = None
 	bot['tradeStatus'] = None
+	bot['changeStatusCounter'] = 0
+	bot['changeStatusTS'] = startTS
 	bot['bot'].reset()
 	bot['bot'].init(**bot['params'])
 	bot['bot'].setTS(ts)
@@ -74,6 +76,7 @@ while inWork:
 		if bot['status'] <> bot['bot'].getStatus():
 			print("bot #{0} change status to {1} at {2} last price: {3}".format(bot['bot'].getId(), bot['bot'].getStatus(), TStoStr(ts), lastPrice))
 			bot['status'] = bot['bot'].getStatus()
+			bot['changeStatusCounter'] += 1
 
 	for bot in bots:
 		if bot['tradeStatus'] <> bot['bot'].getTradeStatus():
@@ -97,14 +100,20 @@ while inWork:
 		if bot['status'] <> 'stopped':
 			inWork = True
 
-	print(TStoStr(ts))
+	print(TStoStr(ts) + "\r"), 
 
 print("start date: {0}, end date: {1}\r\n".format(TStoStr(startTS), TStoStr(endTS)))
 
 for bot in bots:
 	profitPercent = round((bot['bot'].getBalance() - bot['startBalance']) / bot['startBalance'] * 100, 2)
+	bot['profitPercent'] = profitPercent
+	bot['changeStatusTS'] = bot['bot'].getChangeStatusTS()
 	print(bot['bot'].getParams())
-	print("bot #{0} start balance: {1}, end balance: {2}, profit: {3}%, complete date: {4}\r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), profitPercent, TStoStr(bot['bot'].getChangeStatusTS())))
+	print("bot #{0} start balance: {1}, end balance: {2}, profit: {3}%, complete date: {4}, change status counts: {5} \r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), profitPercent, TStoStr(bot['bot'].getChangeStatusTS()), bot['changeStatusCounter']))
+
+# ================== debug ================== #
+print(bots)
+# ================== debug ================== #
 
 # sorted(self.items, key = lambda player: player.y) - пример сортировки
 

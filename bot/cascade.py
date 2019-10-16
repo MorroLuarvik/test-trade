@@ -45,7 +45,6 @@ class Cascade(AbstractBot):
 		AbstractBot.__init__(self, exchange, pairId)
 		self.exchange = exchange
 		self.pairId = pairId
-		
 
 	def reset(self):
 		""" сброс настроек """ 
@@ -507,7 +506,7 @@ class Cascade(AbstractBot):
 			"profitPercent": {
 				"default": 1.1,
 				"mutable": True,
-				"min": 0.02,
+				"min": 0.04,
 				"max": 10,
 				"type": "float"
 			},
