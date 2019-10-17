@@ -6,12 +6,17 @@ DB_DIR = 'db'
 DB_NAME = 'database.db'
 
 CONFIG_FILE_NAME = 'config.json'
+CONF_DIR = 'conf'
+LOG_FILE_NAME = 'evo.log'
+BOT_PARAMS_FILE = 'bot_params.json'
 
 import os
 dirName, fileName = os.path.split(os.path.abspath(__file__))
 
 print('Hello from here')
-dbFileName = dirName + os.path.sep + DB_DIR +  os.path.sep + DB_NAME
+dbFileName = dirName + os.path.sep + DB_DIR + os.path.sep + DB_NAME
+logFileName = dirName + os.path.sep + CONF_DIR + os.path.sep + LOG_FILE_NAME
+botParamsFileName = dirName + os.path.sep + CONF_DIR + os.path.sep + BOT_PARAMS_FILE
 
 import time
 
@@ -25,16 +30,17 @@ def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 from localdata import LocalData
 pairId = 13
 datasource = LocalData(dbFileName, pairId)
-botsInGeneration = 6
+botsInGeneration = 3
 generatons = 14
 
-startTS = StrToTS("2019.04.08 00:00:00")
-endTS = StrToTS("2019.04.18 00:00:00") # endTS = StrToTS("2019.04.10 00:00:00")
-stopTS = StrToTS("2019.04.28 00:00:00") # stopTS = StrToTS("2019.04.15 00:00:00")
+startTS = StrToTS("2019.04.01 00:00:00") #StrToTS("2019.04.08 00:00:00")
+endTS = StrToTS("2019.04.02 00:00:00") # endTS = StrToTS("2019.04.18 00:00:00")
+stopTS = StrToTS("2019.04.03 00:00:00") # stopTS = StrToTS("2019.04.28 00:00:00")
 
 from exchange import Exchange
 from bot import Bot
 from bot.mutate import Mutate
+import json
 
 # ============== init bot arrays ==============
 bots = []
@@ -44,9 +50,25 @@ for cou in range(botsInGeneration):
 mutate = Mutate()
 
 # ============== init bot params ==============
+if os.path.isfile(botParamsFileName):
+	paramsFile = open(botParamsFileName, 'r+')
+	storedParams = json.load(paramsFile)
+	paramsFile.close()
+else:
+	storedParams = []
+
+idx = 0
 for bot in bots:
 	template = bot['bot'].getParamsTemplate()
-	bot['params'] = mutate.getRandomParams(template)
+	if len(storedParams) > idx:
+		bot['params'] = storedParams[idx]
+	else:
+		bot['params'] = mutate.getRandomParams(template)
+	idx += 1
+
+logFile = open(logFileName, "a+")
+logFile.write("start date: {0}, end date: {1}, stop date: {2}\r\n".format(TStoStr(startTS), TStoStr(endTS), TStoStr(stopTS)))
+logFile.close()
 
 for generation in range(generatons):
 	print("generation# {0}".format(generation))
@@ -107,12 +129,19 @@ for generation in range(generatons):
 
 	print("start date: {0}, end date: {1}\r\n".format(TStoStr(startTS), TStoStr(endTS)))
 
+	logFile = open(logFileName, "a+")
+	logFile.write("generation# {0}\r\n".format(generation))
+	
 	for bot in bots:
 		profitPercent = round((bot['bot'].getBalance() - bot['startBalance']) / bot['startBalance'] * 100, 2)
 		bot['profitPercent'] = profitPercent
 		bot['changeStatusTS'] = bot['bot'].getChangeStatusTS()
 		print(bot['bot'].getParams())
+		logFile.write(json.dumps(bot['bot'].getParams()))
 		print("bot #{0} start balance: {1}, end balance: {2}, profit: {3}%, complete date: {4}, change status counts: {5} \r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), profitPercent, TStoStr(bot['bot'].getChangeStatusTS()), bot['changeStatusCounter']))
+		logFile.write("\nbot #{0} start balance: {1}, end balance: {2}, profit: {3}%, complete date: {4}, change status counts: {5} \r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), profitPercent, TStoStr(bot['bot'].getChangeStatusTS()), bot['changeStatusCounter']))
+	
+	logFile.close()
 
 	# =============== arrange params by profit percent =============== #
 	sortedParams = []
@@ -124,6 +153,9 @@ for generation in range(generatons):
 	for idx in xrange(len(sortedParams) / 2):
 		template = bots[idx]['bot'].getParamsTemplate()
 		sortedParams[-idx - 1] = mutate.mutateParams(template, mutate.fusionParams(template, sortedParams[idx], sortedParams[idx + 1]))
+	paramsFile = open(botParamsFileName, 'w+')
+	paramsFile.write(json.dumps(sortedParams))
+	paramsFile.close()
 	# =============== fuse and mutate params =============== #
 	
 	# =============== set mutated params to bots =============== #

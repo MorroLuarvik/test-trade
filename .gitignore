@@ -4,6 +4,7 @@
 *.pyc
 *.db
 *.log
-bot_params.json
+/conf/*.json
+/conf/*.log
 config
 config.json
