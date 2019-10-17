@@ -30,12 +30,12 @@ def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 from localdata import LocalData
 pairId = 13
 datasource = LocalData(dbFileName, pairId)
-botsInGeneration = 3
+botsInGeneration = 8
 generatons = 14
 
-startTS = StrToTS("2019.04.01 00:00:00") #StrToTS("2019.04.08 00:00:00")
-endTS = StrToTS("2019.04.02 00:00:00") # endTS = StrToTS("2019.04.18 00:00:00")
-stopTS = StrToTS("2019.04.03 00:00:00") # stopTS = StrToTS("2019.04.28 00:00:00")
+startTS = StrToTS("2019.04.08 00:00:00") #StrToTS("2019.04.08 00:00:00")
+endTS = StrToTS("2019.04.18 00:00:00") # endTS = StrToTS("2019.04.18 00:00:00")
+stopTS = StrToTS("2019.04.28 00:00:00") # stopTS = StrToTS("2019.04.28 00:00:00")
 
 from exchange import Exchange
 from bot import Bot
