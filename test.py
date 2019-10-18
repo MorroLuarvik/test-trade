@@ -30,12 +30,12 @@ def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 from localdata import LocalData
 pairId = 13
 datasource = LocalData(dbFileName, pairId)
-botsInGeneration = 8
-generatons = 14
+botsInGeneration = 2
+generatons = 1
 
-startTS = StrToTS("2019.04.08 00:00:00") #StrToTS("2019.04.08 00:00:00")
-endTS = StrToTS("2019.04.18 00:00:00") # endTS = StrToTS("2019.04.18 00:00:00")
-stopTS = StrToTS("2019.04.28 00:00:00") # stopTS = StrToTS("2019.04.28 00:00:00")
+startTS = StrToTS("2019.04.20 00:00:00") # startTS = StrToTS("2019.04.08 00:00:00")
+endTS = StrToTS("2019.04.23 00:00:00") # endTS = StrToTS("2019.04.18 00:00:00")
+stopTS = StrToTS("2019.05.3 00:00:00") # stopTS = StrToTS("2019.04.28 00:00:00")
 
 from exchange import Exchange
 from bot import Bot
@@ -101,7 +101,8 @@ for generation in range(generatons):
 			if bot['status'] <> bot['bot'].getStatus():
 				print("bot #{0} change status to {1} at {2} last price: {3}".format(bot['bot'].getId(), bot['bot'].getStatus(), TStoStr(ts), lastPrice))
 				bot['status'] = bot['bot'].getStatus()
-				bot['changeStatusCounter'] += 1
+				if bot['status'] == 'inWork':
+					bot['changeStatusCounter'] += 1
 
 		for bot in bots:
 			if bot['tradeStatus'] <> bot['bot'].getTradeStatus():
