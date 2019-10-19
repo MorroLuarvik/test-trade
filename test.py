@@ -36,6 +36,7 @@ generatons = 20
 startTS = StrToTS("2019.08.01 00:00:00") # startTS = StrToTS("2019.04.08 00:00:00")
 endTS = StrToTS("2019.08.28 00:00:00") # endTS = StrToTS("2019.04.18 00:00:00")
 stopTS = StrToTS("2019.08.29 00:00:00") # stopTS = StrToTS("2019.04.28 00:00:00")
+weightParams = {'profitPercent': .5, 'changeStatusCounter': .5}
 
 from exchange import Exchange
 from bot import Bot
@@ -48,6 +49,7 @@ curExch = Exchange(datasource, pairId)
 for cou in range(botsInGeneration):
 	bots.append({'bot': Bot(curExch, pairId)})
 mutate = Mutate()
+mutate.setWeightParams(weightParams)
 
 # ============== init bot params ==============
 if os.path.isfile(botParamsFileName):
@@ -129,24 +131,27 @@ for generation in range(generatons):
 		print(TStoStr(ts) + "\r"), 
 
 	print("start date: {0}, end date: {1}\r\n".format(TStoStr(startTS), TStoStr(endTS)))
-
-	logFile = open(logFileName, "a+")
-	logFile.write("generation# {0}\r\n".format(generation))
 	
 	for bot in bots:
 		profitPercent = round((bot['bot'].getBalance() - bot['startBalance']) / bot['startBalance'] * 100, 2)
 		bot['profitPercent'] = profitPercent
 		bot['changeStatusTS'] = bot['bot'].getChangeStatusTS()
 		print(bot['bot'].getParams())
-		logFile.write(json.dumps(bot['bot'].getParams()))
 		print("bot #{0} start balance: {1}, end balance: {2}, profit: {3}%, complete date: {4}, change status counts: {5} \r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), profitPercent, TStoStr(bot['bot'].getChangeStatusTS()), bot['changeStatusCounter']))
-		logFile.write("\nbot #{0} start balance: {1}, end balance: {2}, profit: {3}%, complete date: {4}, change status counts: {5} \r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), profitPercent, TStoStr(bot['bot'].getChangeStatusTS()), bot['changeStatusCounter']))
 	
+	logFile = open(logFileName, "a+")
+	logFile.write("generation# {0}\r\n".format(generation))
+	
+	for bot in bots:
+		bot['weight'] = mutate.getWeight(bot, bots)
+		logFile.write(json.dumps(bot['bot'].getParams()))
+		logFile.write("\nbot #{0} start balance: {1}, end balance: {2}, profit: {3}%, weight: {6}, complete date: {4}, change status counts: {5} \r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), bot['profitPercent'], TStoStr(bot['bot'].getChangeStatusTS()), bot['changeStatusCounter'], bot['weight']))
+
 	logFile.close()
 
 	# =============== arrange params by profit percent =============== #
 	sortedParams = []
-	for item in sorted(bots, key=lambda item: item['profitPercent'], reverse=True): # TODO change profitPercent 2 weight
+	for item in sorted(bots, key=lambda item: item['weight'], reverse=True): # TODO change profitPercent 2 weight
 		sortedParams.append(item['params'])
 	# =============== arrange params by profit percent =============== #
 

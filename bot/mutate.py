@@ -6,6 +6,26 @@ import random
 
 class Mutate:
 
+	weightParams = {'profitPercent': .5}
+
+	def setWeightParams(self, weightParams):
+		""" настройка весовых параметров """
+		self.weightParams = weightParams
+
+	def getWeight(self, bot, bots):
+		""" получение веса """
+		weight = 0
+		for paramName in self.weightParams:
+			minVal = min([item[paramName] for item in bots])
+			valRange = max([item[paramName] for item in bots]) - minVal
+			if valRange == 0:
+				continue
+			weight += (bot[paramName] - minVal) * self.weightParams[paramName] / valRange 
+
+		return weight
+
+
+
 	def getDefaultParams(self, paramsTemplate):
 		""" получаем параметры по умолчанию """
 		ret = {}
