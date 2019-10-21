@@ -16,11 +16,13 @@ class Mutate:
 		""" получение веса """
 		weight = 0
 		for paramName in self.weightParams:
-			minVal = min([item[paramName] for item in bots])
-			valRange = max([item[paramName] for item in bots]) - minVal
+			#minVal = min([item[paramName] for item in bots])
+			#valRange = max([item[paramName] for item in bots]) - minVal
+			valRange = abs(max([item[paramName] for item in bots]))
 			if valRange == 0:
 				continue
-			weight += (bot[paramName] - minVal) * self.weightParams[paramName] / valRange 
+			#weight += (bot[paramName] - minVal) * self.weightParams[paramName] / valRange 
+			weight += bot[paramName] * self.weightParams[paramName] / valRange 
 
 		return weight
 
