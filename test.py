@@ -33,7 +33,7 @@ datasource = LocalData(dbFileName, pairId)
 botsInGeneration = 2
 generatons = 2
 
-startTS = StrToTS("2019.10.21 00:00:00") # startTS = StrToTS("2019.04.08 00:00:00")
+startTS = StrToTS("2019.10.06 00:00:00") # startTS = StrToTS("2019.04.08 00:00:00")
 endTS = StrToTS("2019.10.27 00:00:00") # endTS = StrToTS("2019.04.18 00:00:00")
 stopTS = StrToTS("2019.10.28 00:00:00") # stopTS = StrToTS("2019.04.28 00:00:00")
 weightParams = {'profitPercent': .45, 'changeStatusCounter': .55}
@@ -94,6 +94,10 @@ for generation in range(generatons):
 	while inWork:
 		ts += 1200
 		curExch.setTS(ts)
+
+		#print(curExch.orders)
+		#print(curExch.users)
+
 		for bot in bots:
 			bot['bot'].setTS(ts)
 

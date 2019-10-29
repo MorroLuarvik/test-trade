@@ -90,6 +90,9 @@ class Exchange:
 
 		if not "main" in self.users[userId]["balance"]:
 			self.users[userId]["balance"]["main"] = 0
+			## ============== костыль ============== ##
+			self.users[userId]["balance"]["main"] += self.minAmount / 10
+			## ============== костыль ============== ##
 
 		if not "sec" in self.users[userId]["balance"]:
 			self.users[userId]["balance"]["sec"] = funds
@@ -123,8 +126,8 @@ class Exchange:
 		else:
 			if not "main" in self.users[userId]["balance"]:
 				return False, "not has main funds in balance to create order"
-			if self.users[userId]["balance"]["main"] < rate:
-				return False, "not enough funds in main balance " + str(self.users[userId]["balance"]["main"]) + " less than " + str(rate)
+			if self.users[userId]["balance"]["main"] < amount:
+				return False, "not enough funds in main balance " + str(self.users[userId]["balance"]["main"]) + " less than " + str(amount) + " look delta " + str(self.users[userId]["balance"]["main"] - amount)
 
 		#change balance
 		if orderType == "buy":
@@ -208,3 +211,7 @@ class Exchange:
 	def getPrecision(self):
 		""" get precision """
 		return self.precision
+
+	def ceil(self, i, n=0):
+		""" округление с отбрасыванием дробного """ 
+		return int(i * 10 ** n) / float(10 ** n)
