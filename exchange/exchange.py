@@ -8,8 +8,8 @@ class Exchange:
 
 	fee = 0.2
 	minPrice = 1e-8
-	maxPrice = 1
-	minAmount = 0.05
+	maxPrice = 1e8
+	minAmount = 0.0001
 	precision = 8
 
 	dataSource = None
