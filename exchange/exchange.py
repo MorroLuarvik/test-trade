@@ -91,7 +91,7 @@ class Exchange:
 		if not "main" in self.users[userId]["balance"]:
 			self.users[userId]["balance"]["main"] = 0
 			## ============== костыль ============== ##
-			#self.users[userId]["balance"]["main"] += self.minAmount / 1000
+			self.users[userId]["balance"]["main"] += self.minAmount / 100
 			## ============== костыль ============== ##
 
 		if not "sec" in self.users[userId]["balance"]:
