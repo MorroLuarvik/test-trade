@@ -148,7 +148,7 @@ class MainWindow:
 			displayDates += hours
 		
 		for ts in displayDates:
-			print(self.TStoStr(ts))
+			#print(self.TStoStr(ts))
 			self.drawTimeMark(canvas, startTS, endTS, ts)
 
 		print("startTS: {0} ({1}), endTS: {2} ({3})".format(startTS, self.TStoStr(startTS), endTS, self.TStoStr(endTS)))
@@ -170,7 +170,7 @@ class MainWindow:
 		canvas.create_line(x + 3, canvas.winfo_height() - self.marginBottom + 2, x + 3, canvas.winfo_height() - self.marginBottom + 4)
 		canvas.create_text(x + 3, canvas.winfo_height() - self.marginBottom + 10, text=displayDate)
 
-		print(x, displayDate)
+		#print(x, displayDate)
 
 
 	def drawPriceScale(self, canvas, minPrice, maxPrice):
@@ -221,10 +221,12 @@ class MainWindow:
 		fill = "#000"
 		if candleInfo[4] < candleInfo[5]:
 			fill = "#fff"
-		canvas.create_rectangle(x+1, self.priceToY(topY, bottomY, maxPrice, minPrice, candleInfo[4]), x+3, self.priceToY(topY, bottomY, maxPrice, minPrice, candleInfo[5]), outline="#000", fill=fill)
+		topCandleBody = self.priceToY(topY, bottomY, maxPrice, minPrice, candleInfo[4])
+		bottomCandelBody = self.priceToY(topY, bottomY, maxPrice, minPrice, candleInfo[5])
+		canvas.create_rectangle(x+1, topCandleBody, x+3, bottomCandelBody, outline="#000", fill=fill)
 
 	def priceToY(self, topY, bottomY, maxPrice, minPrice, price):
-		return int(topY + (maxPrice - price) / (maxPrice - minPrice) * (bottomY - topY))
+		return int(topY + (maxPrice - price) * (bottomY - topY) / (maxPrice - minPrice))
 
 
 	def getTimeFrame(self):
