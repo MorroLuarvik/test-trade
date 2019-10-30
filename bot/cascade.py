@@ -241,7 +241,7 @@ class Cascade(AbstractBot):
 			invset = startInvest * (1 + incInvest * stage / (steps - 1)) 
 			investOrders.append({
 				'type': "buy",
-				'amount': self.ceil(invset / price, self.exchange.getPrecision()),
+				'amount': self.ceil(invset / price, self.exchange.getPrecision() - 1),
 				'price': self.ceil(price, self.DECIMAL_PLACES),
 				'invest': invset
 			})
@@ -265,7 +265,7 @@ class Cascade(AbstractBot):
 			if idx > len(profitOrders):
 				profitOrders.append({
 					'type': profitAction,
-					'amount': self.ceil(amount, self.exchange.getPrecision()),
+					'amount': self.ceil(amount, self.exchange.getPrecision() - 1),
 					'price': self.ceil(price, self.DECIMAL_PLACES)
 				})
 		return profitOrders
