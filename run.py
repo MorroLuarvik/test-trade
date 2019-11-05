@@ -9,7 +9,7 @@ import math
 from localdata import LocalData
 
 class MainWindow:
-	pairId = 11
+	pairId = 16
 	candleWidth = 5
 	marginRight = 100
 	marginBottom = 30
