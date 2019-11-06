@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*-coding:utf-8-*-
 
-pairId = 16# 11 btc/rur exmo
+pairId = 13# 11 btc/rur exmo
 
 CONFIG_FILE_NAME = 'config.json'
 
