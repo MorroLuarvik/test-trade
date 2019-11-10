@@ -33,9 +33,9 @@ datasource = LocalData(dbFileName, pairId)
 botsInGeneration = 7
 generatons = 32
 
-startTS = StrToTS("2019.10.15 00:00:00") # startTS = StrToTS("2019.04.08 00:00:00")
-endTS = StrToTS("2019.11.05 00:00:00") # endTS = StrToTS("2019.11.03 00:00:00")
-stopTS = StrToTS("2019.11.06 00:00:00") # stopTS = StrToTS("2019.11.04 00:00:00")
+startTS = StrToTS("2019.10.17 00:00:00") # startTS = StrToTS("2019.04.08 00:00:00")
+endTS = StrToTS("2019.11.07 00:00:00") # endTS = StrToTS("2019.11.03 00:00:00")
+stopTS = StrToTS("2019.11.08 00:00:00") # stopTS = StrToTS("2019.11.04 00:00:00")
 weightParams = {'profitPercent': .45, 'changeStatusCounter': .55}
 
 from exchange import Exchange
