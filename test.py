@@ -36,7 +36,7 @@ generatons = 32
 startTS = StrToTS("2019.10.28 00:00:00") # startTS = StrToTS("2019.04.08 00:00:00")
 endTS = StrToTS("2019.11.18 00:00:00") # endTS = StrToTS("2019.11.03 00:00:00")
 stopTS = StrToTS("2019.11.19 00:00:00") # stopTS = StrToTS("2019.11.04 00:00:00")
-weightParams = {'profitPercent': {'weight': .5}, 'changeStatusCounter': {'weight': .5, 'maxValue': 7}}
+weightParams = {'profitPercent': {'weight': .45}, 'changeStatusCounter': {'weight': .55, 'maxValue': 10}}
 
 from exchange import Exchange
 from bot import Bot
