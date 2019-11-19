@@ -28,15 +28,15 @@ def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 
 
 from localdata import LocalData
-pairId = 11
+pairId = 18
 datasource = LocalData(dbFileName, pairId)
 botsInGeneration = 7
 generatons = 32
 
-startTS = StrToTS("2019.10.21 00:00:00") # startTS = StrToTS("2019.04.08 00:00:00")
-endTS = StrToTS("2019.11.11 00:00:00") # endTS = StrToTS("2019.11.03 00:00:00")
-stopTS = StrToTS("2019.11.12 00:00:00") # stopTS = StrToTS("2019.11.04 00:00:00")
-weightParams = {'profitPercent': .5, 'changeStatusCounter': .5}
+startTS = StrToTS("2019.10.28 00:00:00") # startTS = StrToTS("2019.04.08 00:00:00")
+endTS = StrToTS("2019.11.18 00:00:00") # endTS = StrToTS("2019.11.03 00:00:00")
+stopTS = StrToTS("2019.11.19 00:00:00") # stopTS = StrToTS("2019.11.04 00:00:00")
+weightParams = {'profitPercent': {'weight': .5}, 'changeStatusCounter': {'weight': .5, 'maxValue': 7}}
 
 from exchange import Exchange
 from bot import Bot

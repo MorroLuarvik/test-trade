@@ -6,7 +6,7 @@ import random
 
 class Mutate:
 
-	weightParams = {'profitPercent': .5}
+	weightParams = {'profitPercent': {'weight': .5}}
 
 	def setWeightParams(self, weightParams):
 		""" настройка весовых параметров """
@@ -22,11 +22,14 @@ class Mutate:
 			if valRange == 0:
 				continue
 			#weight += (bot[paramName] - minVal) * self.weightParams[paramName] / valRange 
-			weight += bot[paramName] * self.weightParams[paramName] / valRange 
+			
+			botValue = bot[paramName] 
+			if 'maxValue' in self.weightParams[paramName]:
+				botValue = min(botValue, self.weightParams[paramName]['maxValue'])
+
+			weight += botValue * self.weightParams[paramName]['weight'] / valRange 
 
 		return weight
-
-
 
 	def getDefaultParams(self, paramsTemplate):
 		""" получаем параметры по умолчанию """
@@ -45,13 +48,12 @@ class Mutate:
 
 	def mutateParams(self, paramsTemplate, params, qty = 1):
 		""" изменение случайных параметров в указанном количестве """
-		
 		mutateKeys = []
 		for key in paramsTemplate:
 			if paramsTemplate[key]['mutable']:
 				mutateKeys.append(key)
 
-		for cou in range(qty):
+		for _ in range(qty):
 			curKey = mutateKeys[random.randint(0, len(mutateKeys) - 1)]
 			params[curKey] = self._getRandomParam(paramsTemplate[curKey])
 
