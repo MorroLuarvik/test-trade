@@ -53,6 +53,22 @@ class ExternalData:
 
 		cursor.execute(query)
 		return cursor.fetchall()
+	
+	def getMinAndMaxStartTS(self, pairId):
+		""" get min and max start TS for specified TS """
+		query = """
+			SELECT 
+				MIN(start_ts) as min_start_ts,
+				MAX(start_ts) as max_start_ts
+			FROM 
+				s_trade_stats
+			WHERE
+				pair_id = {0}
+		""".format(pairId)
+		
+		cursor = self.connect.cursor()
+		cursor.execute(query) 
+		return cursor.fetchall()
 
 	def __del__(self):
 		self.connect.close()

@@ -192,8 +192,24 @@ class LocalData:
 		cursor.execute(query) 
 		return cursor.fetchall()
 
+	def getMinAndMaxStartTS(self, pairId):
+		""" get min and max start TS for specified TS """
+		query = """
+			SELECT 
+				MIN(start_ts) as min_start_ts,
+				MAX(start_ts) as max_start_ts
+			FROM 
+				s_trade_stats
+			WHERE
+				pair_id = {0}
+		""".format(pairId)
+		
+		cursor = self.curConnect.cursor()
+		cursor.execute(query) 
+		return cursor.fetchall()
+
 	def getSigma(self, TS, timeLen, pairId):
-		""" get sigma """
+		""" get sigma timeLen setted in days """
 		startTS = TS - int(timeLen) * self.SEC_ID_DAY
 
 		rows = self.getPriceStat(startTS, TS, pairId)
