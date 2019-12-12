@@ -52,3 +52,31 @@ tradeStartTS, tradeEndTS = SQLiteDataSource.getMinAndMaxStartTS(pairId)[0]
 curTS = time.time()
 print('SQLite stat')
 print('min and max values: {0}, connect duration: {1}'.format((TStoStr(tradeStartTS), TStoStr(tradeEndTS)), curTS - startTS))
+
+""" серьёзное тестирование вычисления произвольный сигм """
+import random
+
+startTS = time.time()
+testSequence = []
+startTestTS = StrToTS("2018.09.01", "%Y.%m.%d")
+for _ in xrange(100):
+	testSequence.append([startTestTS, random.randint(1, 21)])
+	startTestTS += random.randint(1, 24) * 3600
+curTS = time.time()
+print('generate test sequence duration: {0}'.format(curTS - startTS))
+
+startTS = time.time()
+sigmaList = []
+for TS, timeLen in testSequence:
+	sigmaList.append(SQLiteDataSource.getSigma(TS, timeLen, pairId))
+curTS = time.time()
+print(sigmaList)
+print('calculate {1} sigms from SQLite datasource duration: {0}'.format(curTS - startTS, sigmaList.__len__()))
+
+startTS = time.time()
+sigmaList = []
+for TS, timeLen in testSequence:
+	sigmaList.append(MySQLDataSource.getSigma(TS, timeLen, pairId))
+curTS = time.time()
+print(sigmaList)
+print('calculate {1} sigms from MySQL datasource duration: {0}'.format(curTS - startTS, sigmaList.__len__()))

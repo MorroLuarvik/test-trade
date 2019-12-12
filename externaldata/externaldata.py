@@ -4,6 +4,7 @@
 import MySQLdb
 
 class ExternalData:
+	SEC_ID_DAY = 24 * 3600
 	connect = None
 	
 	def __init__(self, host = None, db = None, user = None, pswd = None, port = 3306):
@@ -69,6 +70,34 @@ class ExternalData:
 		cursor = self.connect.cursor()
 		cursor.execute(query) 
 		return cursor.fetchall()
+	
+	def getPriceStat(self, startTS, endTS, pairId):
+		""" get trade stat """
+		query = """
+			SELECT 
+				SUM(cou) as cou,
+				SUM(price_2_sum) as price_2_sum,
+				SUM(price_sum) as price_sum
+			FROM 
+				s_trade_stats
+			WHERE
+				pair_id = {2} AND start_ts >= {0} AND start_ts < {1}
+		""".format(startTS, endTS, pairId)
+		
+		cursor = self.connect.cursor()
+		cursor.execute(query) 
+		return cursor.fetchall()
+	
+	def getSigma(self, TS, timeLen, pairId):
+		""" get sigma timeLen setted in days """
+		startTS = TS - int(timeLen) * self.SEC_ID_DAY
+
+		rows = self.getPriceStat(startTS, TS, pairId)
+
+		if len(rows) > 0:
+			return (rows[0][1] / float(rows[0][0]) - rows[0][2] * rows[0][2] / float(rows[0][0]) / float(rows[0][0])) ** 0.5
+
+		return 0
 
 	def __del__(self):
 		self.connect.close()
