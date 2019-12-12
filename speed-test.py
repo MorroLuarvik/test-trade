@@ -53,7 +53,7 @@ curTS = time.time()
 print('SQLite stat')
 print('min and max values: {0}, connect duration: {1}'.format((TStoStr(tradeStartTS), TStoStr(tradeEndTS)), curTS - startTS))
 
-""" серьёзное тестирование вычисления произвольный сигм """
+""" серьёзное тестирование вычисления произвольных сигм """
 import random
 
 startTS = time.time()
