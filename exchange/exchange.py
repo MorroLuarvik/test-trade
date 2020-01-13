@@ -182,14 +182,9 @@ class Exchange:
 	
 	def getSigma(self, timeLen):
 		""" get sigma """
-		startTS = self.curTS - int(timeLen) * self.SEC_ID_DAY
+		#startTS = self.curTS - int(timeLen) * self.SEC_ID_DAY
 
-		rows = self.dataSource.getPriceStat(startTS, self.curTS, self.pairId)
-
-		if len(rows) > 0:
-			return (rows[0][1] / rows[0][0] - rows[0][2] * rows[0][2] / rows[0][0] / rows[0][0]) ** 0.5
-
-		return 0
+		return self.dataSource.getSigma(self.curTS, timeLen, self.pairId)
 
 	def getTotalBalance(self, userId = 0):
 		""" получение последней цены согласно таймеру """

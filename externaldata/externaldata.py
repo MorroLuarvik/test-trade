@@ -98,6 +98,39 @@ class ExternalData:
 			return (rows[0][1] / float(rows[0][0]) - rows[0][2] * rows[0][2] / float(rows[0][0]) / float(rows[0][0])) ** 0.5
 
 		return 0
+	
+	def getLastPrice(self, TS, pairId):
+		""" получение цены закрытия согласно TS """
+		query = """
+			SELECT 
+				price_close
+			FROM 
+				s_trade_stats
+			WHERE
+				pair_id = {1} AND start_ts < {0}
+			ORDER BY start_ts DESC
+			LIMIT 1
+		""".format(TS, pairId)
+
+		cursor = self.connect.cursor()
+		cursor.execute(query) 
+		return cursor.fetchall()
+	
+	def getMinMaxTrades(self, startTS, endTS, pairId):
+		""" get min and max trade values """
+		query = """
+			SELECT 
+				MIN(price_min) as min_price,
+				MAX(price_max) as max_price
+			FROM 
+				s_trade_stats
+			WHERE
+				pair_id = {2} AND start_ts >= {0} AND start_ts < {1}
+		""".format(startTS, endTS, pairId)
+		
+		cursor = self.connect.cursor()
+		cursor.execute(query) 
+		return cursor.fetchall()
 
 	def __del__(self):
 		self.connect.close()

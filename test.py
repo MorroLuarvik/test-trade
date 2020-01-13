@@ -17,6 +17,7 @@ print('Hello from here')
 dbFileName = dirName + os.path.sep + DB_DIR + os.path.sep + DB_NAME
 logFileName = dirName + os.path.sep + CONF_DIR + os.path.sep + LOG_FILE_NAME
 botParamsFileName = dirName + os.path.sep + CONF_DIR + os.path.sep + BOT_PARAMS_FILE
+configFileName = dirName + os.path.sep + CONFIG_FILE_NAME
 
 import time
 
@@ -26,10 +27,21 @@ def TStoStr(ts = 0, format = "%Y.%m.%d %H:%M:%S"):
 def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 	return int(time.mktime(time.strptime(strTime, format)))
 
+import json
+#from localdata import LocalData
+from externaldata import ExternalData
 
-from localdata import LocalData
 pairId = 18
-datasource = LocalData(dbFileName, pairId)
+
+if os.path.isfile(configFileName):
+	paramsFile = open(configFileName, 'r+')
+	configParams = json.load(paramsFile)
+	paramsFile.close()
+else:
+	print("Config file not found in {0}".format(configFileName))
+
+datasource = ExternalData(**configParams['external_db'])
+#datasource = LocalData(dbFileName, pairId)
 botsInGeneration = 7
 generatons = 32
 
@@ -41,7 +53,6 @@ weightParams = {'profitPercent': {'weight': .45}, 'changeStatusCounter': {'weigh
 from exchange import Exchange
 from bot import Bot
 from bot.mutate import Mutate
-import json
 
 # ============== init bot arrays ==============
 bots = []
