@@ -10,6 +10,8 @@ CONF_DIR = 'conf'
 LOG_FILE_NAME = 'evo.log'
 BOT_PARAMS_FILE = 'bot_params.json'
 
+SEC_ID_DAY = 24 * 3600
+
 import os
 dirName, fileName = os.path.split(os.path.abspath(__file__))
 
@@ -43,7 +45,7 @@ else:
 datasource = ExternalData(**configParams['external_db'])
 #datasource = LocalData(dbFileName, pairId)
 botsInGeneration = 7
-generatons = 32
+generatons = 32 #last day in evolution 32 + stopTS = 2020.01.12
 
 startTS = StrToTS("2019.11.19 00:00:00") # startTS = StrToTS("2019.04.08 00:00:00")
 endTS = StrToTS("2019.12.10 00:00:00") # endTS = StrToTS("2019.11.03 00:00:00")
@@ -156,6 +158,7 @@ for generation in range(generatons):
 	
 	logFile = open(logFileName, "a+")
 	logFile.write("generation# {0}\r\n".format(generation))
+	logFile.write("start date: {0}, end date: {1}\r\n".format(TStoStr(startTS), TStoStr(endTS)))
 	
 	for bot in bots:
 		bot['weight'] = mutate.getWeight(bot, bots)
@@ -185,5 +188,12 @@ for generation in range(generatons):
 		bot['params'] = sortedParams[idx]
 		idx += 1
 	# =============== set mutated params to bots =============== #
+
+	# =============== update test TSs =============== #
+	startTS += SEC_ID_DAY
+	endTS += SEC_ID_DAY
+	stopTS += SEC_ID_DAY
+
+	# =============== update test TSs =============== #
 
 exit()
