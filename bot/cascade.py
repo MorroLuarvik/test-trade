@@ -488,7 +488,7 @@ class Cascade(AbstractBot):
 	def getParamsTempalte(self):
 		return {
 			"invest": {
-				"default": .0658,
+				"default": 11032.,
 				"mutable": False
 			},
 			"sigmaDays": {
