@@ -7,8 +7,8 @@ class Exchange:
 	SEC_ID_DAY = 24 * 3600
 
 	fee = 0.2
-	minPrice = 1e-8
-	maxPrice = 1e8
+	minPrice = 1e-8 #1e-8
+	maxPrice = 10000 #1e8
 	minAmount = 0.0001 # 0.05 -- 0.01 0.0001
 	precision = 8
 
