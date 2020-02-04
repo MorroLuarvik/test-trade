@@ -33,7 +33,7 @@ import json
 #from localdata import LocalData
 from externaldata import ExternalData
 
-pairId = 16
+pairId = 18 # YoBit ltc/btc
 
 if os.path.isfile(configFileName):
 	paramsFile = open(configFileName, 'r+')
@@ -47,9 +47,9 @@ datasource = ExternalData(**configParams['external_db'])
 botsInGeneration = 9
 generatons = 32 #last day in evolution 31 + stopTS = 2020.01.16 ?
 
-startTS = StrToTS("2019.12.08 00:00:00") # startTS = StrToTS("2019.04.08 00:00:00")
-endTS = StrToTS("2019.12.29 00:00:00") # endTS = StrToTS("2019.11.03 00:00:00")
-stopTS = StrToTS("2019.12.30 00:00:00") # stopTS = StrToTS("2019.11.04 00:00:00")
+startTS = StrToTS("2019.12.12 00:00:00") # startTS = StrToTS("2019.04.08 00:00:00")
+endTS = StrToTS("2020.01.02 00:00:00") # endTS = StrToTS("2019.11.03 00:00:00")
+stopTS = StrToTS("2020.01.03 00:00:00") # stopTS = StrToTS("2019.11.04 00:00:00")
 weightParams = {'profitPercent': {'weight': .45}, 'changeStatusCounter': {'weight': .55, 'maxValue': 15}}
 
 from exchange import Exchange
@@ -166,6 +166,29 @@ for generation in range(generatons):
 		logFile.write("\nbot #{0} start balance: {1}, end balance: {2}, profit: {3}%, weight: {6}, complete date: {4}, change status counts: {5} \r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), bot['profitPercent'], TStoStr(bot['bot'].getChangeStatusTS()), bot['changeStatusCounter'], bot['weight']))
 
 	logFile.close()
+
+	# =============== set random params for bots width negative weight =============== #
+	# =============== debug =============== #
+	print('//bot BEFORE remove negative params')
+	for bot in bots:
+		print("//original bot params")
+		print(json.dumps(bot['bot'].getParams()))
+		print("//stored bot params")
+		print(json.dumps(bot['params']))
+		print("\n//bot #{0} start balance: {1}, end balance: {2}, profit: {3}%, weight: {6}, complete date: {4}, change status counts: {5} \r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), bot['profitPercent'], TStoStr(bot['bot'].getChangeStatusTS()), bot['changeStatusCounter'], bot['weight']))
+	# =============== debug =============== #
+	for bot in bots:
+		if bot['weight'] < 0:
+			bot['params'] = mutate.getRandomParams(bot['bot'].getParamsTemplate())
+			bot['weight'] = 0
+	# =============== debug =============== #
+	print('//bot AFTER remove negative params')
+	for bot in bots:
+		print("//randomized bot params")
+		print(json.dumps(bot['params']))
+		print("\n//bot #{0} start balance: {1}, end balance: {2}, profit: {3}%, weight: {6}, complete date: {4}, change status counts: {5} \r\n".format(bot['bot'].getId(), bot['startBalance'], bot['bot'].getBalance(), bot['profitPercent'], TStoStr(bot['bot'].getChangeStatusTS()), bot['changeStatusCounter'], bot['weight']))
+	# =============== debug =============== #
+	# =============== set random params for bots width negative weight =============== #
 
 	# =============== arrange params by profit percent =============== #
 	sortedParams = []

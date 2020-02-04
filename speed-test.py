@@ -25,7 +25,7 @@ dirName, fileName = os.path.split(os.path.abspath(__file__))
 dbFileName = dirName + os.path.sep + DB_DIR +  os.path.sep + DB_NAME
 cfgFileName = dirName + os.path.sep + CONFIG_FILE_NAME
 
-pairId = 16
+pairId = 18
 #11 BTC/RUR on exmo.me
 #16 BTC/RUR on YoBit
 #18 LTC/BTC on YoBit
