@@ -33,7 +33,7 @@ import json
 #from localdata import LocalData
 from externaldata import ExternalData
 
-pairId = 18 # Exmo btc/rur
+pairId = 18 # Exmo btc/rur -
 
 if os.path.isfile(configFileName):
 	paramsFile = open(configFileName, 'r+')
