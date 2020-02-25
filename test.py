@@ -33,7 +33,7 @@ import json
 #from localdata import LocalData
 from externaldata import ExternalData
 
-pairId = 13 # Exmo ltc/btc
+pairId = 18 # YoBit ltc/btc
 
 if os.path.isfile(configFileName):
 	paramsFile = open(configFileName, 'r+')
@@ -47,9 +47,9 @@ datasource = ExternalData(**configParams['external_db'])
 botsInGeneration = 9
 generatons = 32 #last day in evolution 31 + stopTS = 2020.01.16 ?
 
-startTS = StrToTS("2019.12.24 00:00:00") # startTS = StrToTS("2019.04.08 00:00:00")
-endTS = StrToTS("2020.01.14 00:00:00") # endTS = StrToTS("2019.11.03 00:00:00")
-stopTS = StrToTS("2020.01.15 00:00:00") # stopTS = StrToTS("2019.11.04 00:00:00")
+startTS = StrToTS("2020.01.03 00:00:00") # startTS = StrToTS("2019.04.08 00:00:00")
+endTS = StrToTS("2020.01.24 00:00:00") # endTS = StrToTS("2019.11.03 00:00:00")
+stopTS = StrToTS("2020.01.25 00:00:00") # stopTS = StrToTS("2019.11.04 00:00:00")
 weightParams = {'profitPercent': {'weight': .45}, 'changeStatusCounter': {'weight': .55, 'maxValue': 10}}
 
 from exchange import Exchange
