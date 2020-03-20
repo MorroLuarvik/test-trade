@@ -2,7 +2,7 @@
 #-*-coding:utf-8-*-
 """ Абстрактный бот, их тут много будет """
 
-from cascade import Cascade
+from bot import Cascade
 
 class Bot:
 

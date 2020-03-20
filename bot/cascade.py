@@ -2,7 +2,7 @@
 #-*-coding:utf-8-*-
 """ Абстрактный бот, их тут много будет """
 
-from abstractbot import AbstractBot
+from bot.abstractbot import AbstractBot
 
 class Cascade(AbstractBot):
 
@@ -153,7 +153,7 @@ class Cascade(AbstractBot):
 		
 		# ================== check inWork status ================== #
 		if self.__inWork(self.cascadeStruct):
-			if self.status <> 'inWork':
+			if self.status != 'inWork':
 				self.status = 'inWork'
 				self.changeStatusTS = self.curTS
 		else:

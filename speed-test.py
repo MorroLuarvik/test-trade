@@ -2,7 +2,7 @@
 #-*-coding:utf-8-*-
 """ тест скорости выполнения """
 
-import Tkinter as tk
+#import Tkinter as tk
 import time
 import math
 
@@ -25,7 +25,7 @@ dirName, fileName = os.path.split(os.path.abspath(__file__))
 dbFileName = dirName + os.path.sep + DB_DIR +  os.path.sep + DB_NAME
 cfgFileName = dirName + os.path.sep + CONFIG_FILE_NAME
 
-pairId = 18
+pairId = 16
 #13 LTC/BTC on exmo.me
 #11 BTC/RUR on exmo.me
 #16 BTC/RUR on YoBit
@@ -61,7 +61,7 @@ import random
 startTS = time.time()
 testSequence = []
 startTestTS = StrToTS("2018.09.01", "%Y.%m.%d")
-for _ in xrange(100):
+for _ in range(100):
 	testSequence.append([startTestTS, random.randint(1, 21)])
 	startTestTS += random.randint(1, 24) * 3600
 curTS = time.time()

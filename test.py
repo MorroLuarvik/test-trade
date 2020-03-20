@@ -117,14 +117,14 @@ for generation in range(generatons):
 		lastPrice = str(curExch.getLastPrice())
 
 		for bot in bots:
-			if bot['status'] <> bot['bot'].getStatus():
+			if bot['status'] != bot['bot'].getStatus():
 				print("bot #{0} change status to {1} at {2} last price: {3}".format(bot['bot'].getId(), bot['bot'].getStatus(), TStoStr(ts), lastPrice))
 				bot['status'] = bot['bot'].getStatus()
 				if bot['status'] == 'inWork':
 					bot['changeStatusCounter'] += 1
 
 		for bot in bots:
-			if bot['tradeStatus'] <> bot['bot'].getTradeStatus():
+			if bot['tradeStatus'] != bot['bot'].getTradeStatus():
 				print("bot #{0} change trade status to {1} at {2} last price: {3}".format(bot['bot'].getId(), bot['bot'].getTradeStatus(), TStoStr(ts), lastPrice))
 				bot['tradeStatus'] = bot['bot'].getTradeStatus()
 
@@ -136,13 +136,13 @@ for generation in range(generatons):
 
 		if ts > stopTS:
 			for bot in bots:
-				if bot['status'] <> 'stopped':
+				if bot['status'] != 'stopped':
 					bot['bot'].stop()
 
 
 		inWork = False
 		for bot in bots:
-			if bot['status'] <> 'stopped':
+			if bot['status'] != 'stopped':
 				inWork = True
 
 		print(TStoStr(ts) + "\r"), 
@@ -181,7 +181,7 @@ for generation in range(generatons):
 	# =============== arrange params by profit percent =============== #
 
 	# =============== fuse and mutate params =============== #
-	for idx in xrange(len(sortedParams) / 2):
+	for idx in range(len(sortedParams) / 2):
 		template = bots[idx]['bot'].getParamsTemplate()
 		sortedParams[-idx - 1] = mutate.mutateParams(template, mutate.fusionParams(template, sortedParams[idx], sortedParams[idx + 1]))
 	paramsFile = open(botParamsFileName, 'w+')
