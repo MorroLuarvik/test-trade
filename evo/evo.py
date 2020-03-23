@@ -4,7 +4,7 @@
 
 class Evo:
 	
-	def init(self, exchangeClass = None, ):
+	def init(self, exchangeClass = None, startDate = None, stopDate = None):
 		pass
 
 	def run(self):

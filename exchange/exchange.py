@@ -154,7 +154,7 @@ class Exchange:
 		if not orderId in self.orders:
 			return False, "Can't cancel order " + str(orderId) + ". Order not found."
 
-		if self.orders[orderId]['user_id'] <> userId:
+		if self.orders[orderId]['user_id'] != userId:
 			return False, "Can't cancel order " + str(orderId) + ". It is not your order."
 
 		if self.orders[orderId]["type"] == "buy":
