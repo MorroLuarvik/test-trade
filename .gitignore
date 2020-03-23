@@ -8,3 +8,4 @@
 /conf/*.log
 config
 config.json
+*.json
