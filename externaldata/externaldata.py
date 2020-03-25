@@ -40,6 +40,23 @@ class ExternalData:
 		
 		return False
 
+	def getCurrencyByAlias(self, alias = None):
+		""" получения данных инструментов по алиасу """
+		if not type(alias) is str:
+			return False
+		
+		query = """
+			SELECT *
+			FROM s_currencys
+			WHERE alias = "{0}"
+		""".format(alias)
+
+		cursor = self.connect.cursor()
+
+		cursor.execute(query)
+		return cursor.fetchall()
+		
+
 	def getPairStatistic(self, pairId = None):
 		if not type(pairId) is int:
 			return False

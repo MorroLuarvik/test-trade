@@ -6,14 +6,14 @@ class Exchange:
 
 	SEC_ID_DAY = 24 * 3600
 
-	fee = 0.2
-	minPrice = 1e-8 #1e-8 1
-	maxPrice = 1 #1e8 2e6
-	minAmount = 0.0001 # 0.05 -- 0.01 0.0001
-	precision = 8
+	#fee = 0.2
+	#minPrice = 1e-8 #1e-8 1
+	#maxPrice = 1 #1e8 2e6
+	#minAmount = 0.0001 # 0.05 -- 0.01 0.0001
+	#precision = 8
 
 	dataSource = None
-	pairId = None
+	#pairId = None
 	curTS = None
 
 	nextUserId = 0
@@ -21,9 +21,9 @@ class Exchange:
 	users = {}
 	orders = {}
 
-	def __init__(self, dataSource = None, pairId = 0):
+	def __init__(self, dataSource = None): #, pairId = 0
 		self.dataSource = dataSource
-		self.pairId = pairId
+		#self.pairId = pairId
 
 	def reset(self):
 		""" сброс настроек """ 
@@ -80,26 +80,38 @@ class Exchange:
 		self.users[userId] = {}
 		return userId
 
-	def addFunds(self, userId = 0, funds = 0):
-		""" внесение ОСНОВНЫХ средств  на баланс"""
+	def addFunds(self, userId = 0, curAlias = None, funds = 0):
+		""" внесение средств на баланс"""
 		if not userId in self.users:
 			return False, "user with id: " + str(userId) + " is not registred"
+		
+		if not type(curAlias) is str:
+			return False, "unknown currency: " + str(curAlias)
+
+		curAlias = curAlias.lower()
+
+		if not self._hasCurrency(curAlias):
+			return False, "unknown currency: " + str(curAlias)
 
 		if not "balance" in self.users[userId]:
 			self.users[userId]["balance"] = {}
 
-		if not "main" in self.users[userId]["balance"]:
-			self.users[userId]["balance"]["main"] = 0
-			## ============== костыль ============== ##
-			self.users[userId]["balance"]["main"] += self.minAmount / 100
-			## ============== костыль ============== ##
+		if not curAlias in self.users[userId]["balance"]:
+			self.users[userId]["balance"][curAlias] = 0
 
-		if not "sec" in self.users[userId]["balance"]:
-			self.users[userId]["balance"]["sec"] = funds
-			return True, "funds for user with id: " + str(userId) + " added successfull"
+		self.users[userId]["balance"][curAlias] += funds
+		return True, "funds for user with id: " + str(userId) + " added successfull. Your " + str(curAlias) + "balance " + str(self.users[userId]["balance"][curAlias])
 
-		self.users[userId]["balance"]["sec"] += funds
-		return True, "funds for user with id: " + str(userId) + " added successfull"
+	def _hasCurrency(self, curAlias = None):
+		""" проверка существования валюты """
+		rows = self.dataSource.getCurrencyByAlias(curAlias)
+		if not rows:
+			return False
+
+		if len(rows) == 0:
+			return False
+		
+		return True
 
 	def createOrder(self, userId = 0, orderType = "buy", amount = 0, rate = 0):
 		""" cоздание ордера """
