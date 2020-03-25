@@ -43,11 +43,26 @@ print(exchange.users)
 
 exchange.setTS(StrToTS("2020.03.14 00:00:00"))
 
-print(exchange.createOrder(userId, 24, "buy", 1, 40))
+orderId, message = exchange.createOrder(userId, 25, "buy", 1, 40)
 
+if orderId is False:
+	print("ошибка при создании ордера " + message)
+
+print("ордер создан")
 print(exchange.users)
 print(exchange.orders)
 print(exchange.reserves)
+
+cancelResult, message = exchange.cancelOrder(userId, orderId)
+
+if cancelResult is False:
+	print("ошибка при отмене ордера " + message)
+
+print("ордер отменён")
+print(exchange.users)
+print(exchange.orders)
+print(exchange.reserves)
+
 
 #print(exchange.isInvestFeeByPairId(24))
 #print(exchange.isInvestFeeByPairId(25))

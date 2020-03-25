@@ -188,11 +188,16 @@ class Exchange:
 
 		if self.orders[orderId]['user_id'] != userId:
 			return False, "Can't cancel order " + str(orderId) + ". It is not your order."
+		
+		mainCurAlias = self.getMainCurAliasByPairId(self.orders[orderId]["pair_id"])
+		secCurAlias = self.getSecCurAliasByPairId(self.orders[orderId]["pair_id"])
 
 		if self.orders[orderId]["type"] == "buy":
-			self.users[userId]["balance"]["sec"] += self.orders[orderId]["rate"] * self.orders[orderId]["amount"]
+			self.users[userId]["balance"][secCurAlias] += self.orders[orderId]["rate"] * self.orders[orderId]["amount"]
+			if self.isInvestFeeByPairId(self.orders[orderId]["pair_id"]):
+				self.users[userId]["balance"][secCurAlias] += self.reserves[orderId]
 		else:
-			self.users[userId]["balance"]["main"] += self.orders[orderId]["amount"]
+			self.users[userId]["balance"][mainCurAlias] += self.orders[orderId]["amount"]
 
 		del self.orders[orderId]
 		
