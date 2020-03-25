@@ -80,7 +80,7 @@ class ExternalData:
 				p.is_invest_sell_fee
 			from s_pairs as p
 			inner join s_currencys as m on p.main_cur_id = m.cur_id
-			inner join s_currencys as s on p.main_cur_id = s.cur_id
+			inner join s_currencys as s on p.sec_cur_id = s.cur_id
 			where p.pair_id = {0}""".format(pairId)
 
 		cursor = self.connect.cursor()

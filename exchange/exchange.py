@@ -23,6 +23,7 @@ class Exchange:
 	nextOrderId = 0
 	users = {}
 	orders = {}
+	reserves = {}
 
 	def __init__(self, dataSource = None): #, pairId = 0
 		self.dataSource = dataSource
@@ -35,6 +36,7 @@ class Exchange:
 		self.curTS = None
 		self.users = {}
 		self.orders = {}
+		self.reserves = {}
 
 	def setTS(self, ts = None):
 		""" установка времени сервера """
@@ -134,22 +136,29 @@ class Exchange:
 		if not "balance" in self.users[userId]:
 			return False, "not has balance to create order"
 
+		mainCurAlias = self.getMainCurAliasByPairId(pairId)
+		secCurAlias = self.getMainCurAliasByPairId(pairId)
+
 		if orderType == "buy":
-			if not "sec" in self.users[userId]["balance"]:
-				return False, "not has sec funds in balance to create order"
-			if self.users[userId]["balance"]["sec"] < rate * amount:
-				return False, "not enough funds in sec balance " + str(self.users[userId]["balance"]["sec"]) + " less  than " + str(rate * amount)
+			if not secCurAlias in self.users[userId]["balance"]:
+				return False, "not has " + secCurAlias + " funds in balance to create order"
+			if self.isInvestFeeByPairId(pairId):
+				if self.users[userId]["balance"][secCurAlias] < rate * amount * (100 + self.getOrderFeeByPairId(pairId)) / 100:
+					return False, "not enough funds in sec balance " + str(self.users[userId]["balance"][secCurAlias]) + " less  than " + str(rate * amount * (100 + self.getOrderFeeByPairId(pairId)) / 100)
+			else:
+				if self.users[userId]["balance"][secCurAlias] < rate * amount:
+					return False, "not enough funds in sec balance " + str(self.users[userId]["balance"][secCurAlias]) + " less  than " + str(rate * amount)
 		else:
-			if not "main" in self.users[userId]["balance"]:
+			if not mainCurAlias in self.users[userId]["balance"]:
 				return False, "not has main funds in balance to create order"
-			if self.users[userId]["balance"]["main"] < amount:
-				return False, "not enough funds in main balance " + str(self.users[userId]["balance"]["main"]) + " less than " + str(amount) + " look delta " + str(self.users[userId]["balance"]["main"] - amount)
+			if self.users[userId]["balance"][mainCurAlias] < amount:
+				return False, "not enough funds in main balance " + str(self.users[userId]["balance"][mainCurAlias]) + " less than " + str(amount) + " look delta " + str(self.users[userId]["balance"][mainCurAlias] - amount)
 
 		#change balance
 		if orderType == "buy":
-			self.users[userId]["balance"]["sec"] -= rate * amount
+			self.users[userId]["balance"][secCurAlias] -= ceil(rate * amount, self.getOrderPrecisionByPairId(pairId))
 		else:
-			self.users[userId]["balance"]["main"] -= amount
+			self.users[userId]["balance"][mainCurAlias] -= amount
 
 		#create order
 		orderId = Exchange.nextOrderId
@@ -162,7 +171,13 @@ class Exchange:
 			"rate": rate,
 			"amount": amount
 		}
-
+		
+		#create fee reserve
+		if self.isInvestFeeByPairId(pairId) and orderType == "buy":
+			self.users[userId]["balance"][secCurAlias] -= ceil(rate * amount * self.getOrderFeeByPairId(pairId) / 100, self.getOrderPrecisionByPairId(pairId))
+			self.reserves[orderId] = ceil(rate * amount * self.getOrderFeeByPairId(pairId) / 100, self.getOrderPrecisionByPairId(pairId))
+			self.getOrderFeeByPairId(pairId)
+		
 		return orderId, "order created"
 
 	def cancelOrder(self, userId = 0, orderId = 0):
@@ -243,7 +258,7 @@ class Exchange:
 		
 		return False
 
-	def getOrderFee(self, pairId = None):
+	def getOrderFeeByPairId(self, pairId = None):
 		""" get fee in order """
 		if not type(pairId) is int:
 			return False
@@ -254,7 +269,7 @@ class Exchange:
 		
 		return False
 
-	def getPrecision(self, pairId = None):
+	def getOrderPrecisionByPairId(self, pairId = None):
 		""" get precision in order """
 		if not type(pairId) is int:
 			return False
@@ -265,6 +280,38 @@ class Exchange:
 		
 		return False
 
+	def getMainCurAliasByPairId(self, pairId = None):
+		""" get main cur alias for pair ID """
+		if not type(pairId) is int:
+			return False
+		
+		params = self._getPairParams(pairId)
+		if isinstance(params, Iterable):
+			return params[7]
+		
+		return False
+
+	def getPairSecCurAlias(self, pairId = None):
+		""" get sec cur alias for pair ID """
+		if not type(pairId) is int:
+			return False
+		
+		params = self._getPairParams(pairId)
+		if isinstance(params, Iterable):
+			return params[5]
+		
+		return False
+
+	def isInvestFeeByPairId(self, pairId = None):
+		""" get flag when fee get from invest for pair ID """
+		if not type(pairId) is int:
+			return False
+		
+		params = self._getPairParams(pairId)
+		if isinstance(params, Iterable):
+			return params[5]
+		
+		return False
 
 	def _getPairParams(self, pairId = None):
 		""" получает ограничения на создиние ордеров для торговой пары 
