@@ -182,8 +182,6 @@ class Exchange:
 	
 	def getSigma(self, timeLen):
 		""" get sigma """
-		#startTS = self.curTS - int(timeLen) * self.SEC_ID_DAY
-
 		return self.dataSource.getSigma(self.curTS, timeLen, self.pairId)
 
 	def getTotalBalance(self, userId = 0):
