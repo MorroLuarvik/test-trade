@@ -35,17 +35,7 @@ print("user ID: {0}".format(userId))
 
 print(exchange.users)
 
-print(exchange.addFunds(userId, 'rur', 2000))
-print(exchange.users)
-
-print(exchange.addFunds(userId, 'rur', 20))
-print(exchange.users)
-
-print(exchange.addFunds(userId, 'btc', 0.01))
-print(exchange.users)
-
-print(exchange.addFunds(userId, 'btc', 0.0005))
-print(exchange.users)
+print(exchange.getMinOrderPrice(13))
 
 print("Проверка скриптов во время разработки окончена")
 

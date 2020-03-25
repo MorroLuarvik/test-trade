@@ -2,6 +2,9 @@
 #-*-coding:utf-8-*-
 """ Симулятор биржы """
 
+from collections.abc import Iterable
+from misc import ceil
+
 class Exchange:
 
 	SEC_ID_DAY = 24 * 3600
@@ -102,6 +105,7 @@ class Exchange:
 		self.users[userId]["balance"][curAlias] += funds
 		return True, "funds for user with id: " + str(userId) + " added successfull. Your " + str(curAlias) + "balance " + str(self.users[userId]["balance"][curAlias])
 
+
 	def _hasCurrency(self, curAlias = None):
 		""" проверка существования валюты """
 		rows = self.dataSource.getCurrencyByAlias(curAlias)
@@ -113,7 +117,7 @@ class Exchange:
 		
 		return True
 
-	def createOrder(self, userId = 0, orderType = "buy", amount = 0, rate = 0):
+	def createOrder(self, userId = 0, pairId = None, orderType = "buy", amount = 0, rate = 0):
 		""" cоздание ордера """
 		if self.curTS is None:
 			return False, "exchange TS is not setted"
@@ -121,11 +125,11 @@ class Exchange:
 		if not userId in self.users:
 			return False, "user with id: " + str(userId) + " is not registred"
 
-		if rate <= self.minPrice or rate >= self.maxPrice:
-			return False, "rate must be in " + str(self.minPrice) + " - " + str(self.maxPrice) + " interval"
+		if rate <= self.getMinOrderPrice(pairId) or rate >= self.getMaxOrderPrice(pairId):
+			return False, "rate must be in " + str(self.getMinOrderPrice(pairId)) + " - " + str(self.getMaxOrderPrice(pairId)) + " interval"
 		
-		if amount < self.minAmount:
-			return False, "amount must be large than " + str(self.minAmount)
+		if amount < self.getMinOrderAmount(pairId):
+			return False, "amount must be large than " + str(self.getMinOrderAmount(pairId))
 
 		if not "balance" in self.users[userId]:
 			return False, "not has balance to create order"
@@ -152,6 +156,7 @@ class Exchange:
 		Exchange.nextOrderId += 1
 		self.orders[orderId] = {
 			"user_id": userId,
+			"pair_id": pairId,
 			"create_ts": self.curTS,
 			"type": orderType,
 			"rate": rate,
@@ -205,18 +210,92 @@ class Exchange:
 		return self.users[userId]["balance"]["sec"] + self.users[userId]["balance"]["main"] * lastPrice + sum(val["amount"] * val["rate"] for val in self.orders.values() if val["user_id"] == userId and val["type"] == "buy") + sum(val["amount"] * lastPrice for val in self.orders.values() if val["user_id"] == userId and val["type"] == "sell")
 
 	# ================================== get trade params ================================== #
-	def getMinAmount(self):
+	def getMinOrderPrice(self, pairId = None):
+		""" возвращает минимальную цену ордера для торговой пары """
+		if not type(pairId) is int:
+			return False
+
+		params = self._getPairParams(pairId)
+		if isinstance(params, Iterable):
+			return params[8]
+		
+		return False
+
+	def getMaxOrderPrice(self, pairId = None):
+		""" возвращает максимальную цену ордера для торговой пары """
+		if not type(pairId) is int:
+			return False
+		
+		params = self._getPairParams(pairId)
+		if isinstance(params, Iterable):
+			return params[9]
+		
+		return False
+
+	def getMinOrderAmount(self, pairId = None):
 		""" get min amount in order """
-		return self.minAmount
+		if not type(pairId) is int:
+			return False
+		
+		params = self._getPairParams(pairId)
+		if isinstance(params, Iterable):
+			return params[10]
+		
+		return False
 
-	def getFee(self):
-		""" get fee """
-		return self.fee
+	def getOrderFee(self, pairId = None):
+		""" get fee in order """
+		if not type(pairId) is int:
+			return False
+		
+		params = self._getPairParams(pairId)
+		if isinstance(params, Iterable):
+			return params[12]
+		
+		return False
 
-	def getPrecision(self):
-		""" get precision """
-		return self.precision
+	def getPrecision(self, pairId = None):
+		""" get precision in order """
+		if not type(pairId) is int:
+			return False
+		
+		params = self._getPairParams(pairId)
+		if isinstance(params, Iterable):
+			return params[7]
+		
+		return False
 
-	def ceil(self, i, n=0):
-		""" округление с отбрасыванием дробного """ 
-		return int(i * 10 ** n) / float(10 ** n)
+
+	def _getPairParams(self, pairId = None):
+		""" получает ограничения на создиние ордеров для торговой пары 
+			0	p.pair_id,
+			1	p.pair_name,
+			2	p.main_cur_id,
+			3	m.alias as main_cur_alias,
+			4	p.sec_cur_id,
+			5	s.alias  as sec_cur_alias,
+			6	p.disabled,
+			7	p.decimal_places,
+			8	p.min_price,
+			9	p.max_price,
+			10	p.min_amount,
+			11	p.min_total,
+			12	p.fee,
+			13	p.is_invest_buy_fee,
+			14	p.is_invest_sell_fee
+		"""
+		if not type(pairId) is int:
+			return False
+
+		rows = self.dataSource.getPairByPairId(int(pairId))
+		if not rows:
+			return False
+
+		if len(rows) == 0:
+			return False
+
+		return rows[0]
+
+	#def ceil(self, i, n=0):
+	#	""" округление с отбрасыванием дробного """ 
+	#	return int(i * 10 ** n) / float(10 ** n)

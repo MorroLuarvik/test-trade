@@ -56,6 +56,38 @@ class ExternalData:
 		cursor.execute(query)
 		return cursor.fetchall()
 		
+	def getPairByPairId(self, pairId = None):
+		""" get pair info by pair id """
+		if not type(pairId) is int:
+			return False
+		
+		query = """
+			select
+				p.pair_id,
+				p.pair_name,
+				p.main_cur_id,
+				m.alias as main_cur_alias,
+				p.sec_cur_id,
+				s.alias  as sec_cur_alias,
+				p.disabled,
+				p.decimal_places,
+				p.min_price,
+				p.max_price,
+				p.min_amount,
+				p.min_total,
+				p.fee,
+				p.is_invest_buy_fee,
+				p.is_invest_sell_fee
+			from s_pairs as p
+			inner join s_currencys as m on p.main_cur_id = m.cur_id
+			inner join s_currencys as s on p.main_cur_id = s.cur_id
+			where p.pair_id = {0}""".format(pairId)
+
+		cursor = self.connect.cursor()
+
+		cursor.execute(query)
+		return cursor.fetchall()
+
 
 	def getPairStatistic(self, pairId = None):
 		if not type(pairId) is int:
