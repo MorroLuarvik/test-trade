@@ -11,6 +11,8 @@ from externaldata import ExternalData
 from exchange import Exchange
 from evo import Evo
 
+from misc import ceil, StrToTS
+
 dirName, fileName = os.path.split(os.path.abspath(__file__))
 configFileName = dirName + os.path.sep + CONFIG_FILE_NAME
 
@@ -35,11 +37,24 @@ print("user ID: {0}".format(userId))
 
 print(exchange.users)
 
-print(exchange.getMinOrderPrice(13))
+print(exchange.addFunds(userId, 'rur', 41))
+
+print(exchange.users)
+
+exchange.setTS(StrToTS("2020.03.14 00:00:00"))
+
+print(exchange.createOrder(userId, 24, "buy", 1, 40))
+
+print(exchange.users)
+print(exchange.orders)
+print(exchange.reserves)
+
+#print(exchange.isInvestFeeByPairId(24))
+#print(exchange.isInvestFeeByPairId(25))
 
 print("Проверка скриптов во время разработки окончена")
 
-from misc import ceil, StrToTS
+
 
 
 #print(ceil(1239.92347, -1))

@@ -137,7 +137,7 @@ class Exchange:
 			return False, "not has balance to create order"
 
 		mainCurAlias = self.getMainCurAliasByPairId(pairId)
-		secCurAlias = self.getMainCurAliasByPairId(pairId)
+		secCurAlias = self.getSecCurAliasByPairId(pairId)
 
 		if orderType == "buy":
 			if not secCurAlias in self.users[userId]["balance"]:
@@ -287,11 +287,11 @@ class Exchange:
 		
 		params = self._getPairParams(pairId)
 		if isinstance(params, Iterable):
-			return params[7]
+			return params[3]
 		
 		return False
 
-	def getPairSecCurAlias(self, pairId = None):
+	def getSecCurAliasByPairId(self, pairId = None):
 		""" get sec cur alias for pair ID """
 		if not type(pairId) is int:
 			return False
@@ -309,7 +309,7 @@ class Exchange:
 		
 		params = self._getPairParams(pairId)
 		if isinstance(params, Iterable):
-			return params[5]
+			return params[13]
 		
 		return False
 
