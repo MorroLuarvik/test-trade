@@ -62,10 +62,26 @@ class Exchange:
 		if not orderId in self.orders:
 			return False
 
+		pairId = self.orders[orderId]["pair_id"]
+		mainCurAlias = self.getMainCurAliasByPairId(pairId)
+		secCurAlias = self.getSecCurAliasByPairId(pairId)
+		precision = self.getOrderPrecisionByPairId(pairId)
+
 		if self.orders[orderId]["type"] == "buy":
-			self.users[self.orders[orderId]["user_id"]]["balance"]["main"] += round(self.orders[orderId]["amount"] * (100 - self.fee) / 100, self.precision)
+
+			if not mainCurAlias in self.users[self.orders[orderId]["user_id"]]["balance"]:
+				self.users[self.orders[orderId]["user_id"]]["balance"][mainCurAlias] = 0
+
+			if self.isInvestFeeByPairId(pairId):
+				self.users[self.orders[orderId]["user_id"]]["balance"][mainCurAlias] +=	self.orders[orderId]["amount"]
+				del self.reserves[orderId]
+			else:
+				self.users[self.orders[orderId]["user_id"]]["balance"][mainCurAlias] += ceil(self.orders[orderId]["amount"] * (100 - self.getOrderFeeByPairId(pairId)) / 100, precision)
 		else:
-			self.users[self.orders[orderId]["user_id"]]["balance"]["sec"] += round(self.orders[orderId]["amount"] * self.orders[orderId]["rate"] * (100 - self.fee) / 100, self.precision)
+			if not secCurAlias in self.users[self.orders[orderId]["user_id"]]["balance"]:
+				self.users[self.orders[orderId]["user_id"]]["balance"][secCurAlias] = 0
+
+			self.users[self.orders[orderId]["user_id"]]["balance"][secCurAlias] += ceil(self.orders[orderId]["amount"] * self.orders[orderId]["rate"] * (100 - self.getOrderFeeByPairId(pairId)) / 100, precision)
 		del self.orders[orderId]
 
 		return True
@@ -196,6 +212,7 @@ class Exchange:
 			self.users[userId]["balance"][secCurAlias] += self.orders[orderId]["rate"] * self.orders[orderId]["amount"]
 			if self.isInvestFeeByPairId(self.orders[orderId]["pair_id"]):
 				self.users[userId]["balance"][secCurAlias] += self.reserves[orderId]
+				del self.reserves[orderId]
 		else:
 			self.users[userId]["balance"][mainCurAlias] += self.orders[orderId]["amount"]
 

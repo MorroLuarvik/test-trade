@@ -37,13 +37,13 @@ print("user ID: {0}".format(userId))
 
 print(exchange.users)
 
-print(exchange.addFunds(userId, 'rur', 41))
+print(exchange.addFunds(userId, 'usd', 1))
 
 print(exchange.users)
 
 exchange.setTS(StrToTS("2020.03.14 00:00:00"))
 
-orderId, message = exchange.createOrder(userId, 25, "buy", 1, 40)
+orderId, message = exchange.createOrder(userId, 24, "sell", 1, 40)
 
 if orderId is False:
 	print("ошибка при создании ордера " + message)
@@ -53,12 +53,12 @@ print(exchange.users)
 print(exchange.orders)
 print(exchange.reserves)
 
-cancelResult, message = exchange.cancelOrder(userId, orderId)
+executeResult = exchange._executeOrder( orderId)
 
-if cancelResult is False:
-	print("ошибка при отмене ордера " + message)
+if executeResult is False:
+	print("ошибка при выполнении ордера " + message)
 
-print("ордер отменён")
+print("ордер выполнен")
 print(exchange.users)
 print(exchange.orders)
 print(exchange.reserves)
