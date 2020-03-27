@@ -38,7 +38,7 @@ print("user ID: {0}".format(userId))
 print(exchange.users)
 
 print(exchange.addFunds(userId, 'usd', 1))
-
+print(exchange.addFunds(userId, 'rur', 100))
 print(exchange.users)
 
 exchange.setTS(StrToTS("2020.03.14 00:00:00"))
@@ -53,12 +53,24 @@ print(exchange.users)
 print(exchange.orders)
 print(exchange.reserves)
 
-executeResult = exchange._executeOrder( orderId)
+orderId, message = exchange.createOrder(userId, 25, "buy", 1, 38)
 
-if executeResult is False:
-	print("ошибка при выполнении ордера " + message)
+if orderId is False:
+	print("ошибка при создании ордера " + message)
 
-print("ордер выполнен")
+print("ордер создан")
+print(exchange.users)
+print(exchange.orders)
+print(exchange.reserves)
+
+exchange.setTS(StrToTS("2020.03.15 00:00:00"))
+
+#executeResult = exchange._executeOrder( orderId)
+
+#if executeResult is False:
+	#print("ошибка при выполнении ордера " + message)
+
+print("состояние ордеров на 2020.03.15")
 print(exchange.users)
 print(exchange.orders)
 print(exchange.reserves)

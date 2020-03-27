@@ -46,16 +46,23 @@ class Exchange:
 
 	def _executeOrders(self, startTS, endTS):
 		""" выполнение ордеров """
-		minPrice, maxPrice = self._getMinMaxPrice(startTS, endTS)
 
-		if minPrice is False or minPrice is None:
-			return
+		pairsOfOrdes = []
+		for orderid in self.orders:
+			if not self.orders[orderid]['pair_id'] in pairsOfOrdes:
+				pairsOfOrdes.append(self.orders[orderid]['pair_id'])
 
-		for orderId in dict(filter(lambda item: item[1]['type'] == "buy" and item[1]['rate'] > minPrice, self.orders.items())):
-			self._executeOrder(orderId)
-		
-		for orderId in dict(filter(lambda item: item[1]['type'] == "sell" and item[1]['rate'] < maxPrice, self.orders.items())):
-			self._executeOrder(orderId)
+		for pairId in pairsOfOrdes:
+			minPrice, maxPrice = self._getMinMaxPrice(pairId, startTS, endTS)
+
+			if minPrice is False or minPrice is None:
+				return
+
+			for orderId in dict(filter(lambda item: item[1]['type'] == "buy" and item[1]['rate'] > minPrice and item[1]['pair_id'] == pairId, self.orders.items())):
+				self._executeOrder(orderId)
+			
+			for orderId in dict(filter(lambda item: item[1]['type'] == "sell" and item[1]['rate'] < maxPrice and item[1]['pair_id'] == pairId, self.orders.items())):
+				self._executeOrder(orderId)
 
 	def _executeOrder(self, orderId):
 		""" исполнение указанного ордера """
@@ -86,9 +93,9 @@ class Exchange:
 
 		return True
 
-	def _getMinMaxPrice(self, startTS, endTS):
+	def _getMinMaxPrice(self, pairId, startTS, endTS):
 		""" получение минимальной и максимальной цен за период """
-		rows = self.dataSource.getMinMaxTrades(startTS, endTS, self.pairId)
+		rows = self.dataSource.getMinMaxTrades(startTS, endTS, pairId)
 		if len(rows) == 0:
 			return False, False
 
@@ -121,7 +128,7 @@ class Exchange:
 			self.users[userId]["balance"][curAlias] = 0
 
 		self.users[userId]["balance"][curAlias] += funds
-		return True, "funds for user with id: " + str(userId) + " added successfull. Your " + str(curAlias) + "balance " + str(self.users[userId]["balance"][curAlias])
+		return True, "funds for user with id: " + str(userId) + " added successfull. Your " + str(curAlias) + " balance " + str(self.users[userId]["balance"][curAlias])
 
 
 	def _hasCurrency(self, curAlias = None):
