@@ -233,17 +233,17 @@ class Exchange:
 		""" получение списка id активных ордеров """
 		return dict(filter(lambda item: item[1]['user_id'] == userId, self.orders.items())).keys()
 
-	def getLastPrice(self):
+	def getLastPrice(self, pairId):
 		""" получение последней цены согласно таймеру """
-		rows = self.dataSource.getLastPrice(self.curTS, self.pairId)
+		rows = self.dataSource.getLastPrice(self.curTS, pairId)
 		if len(rows) <= 0:
 			return False
 		
 		return rows[0][0]
 	
-	def getSigma(self, timeLen):
+	def getSigma(self, pairId, timeLen):
 		""" get sigma """
-		return self.dataSource.getSigma(self.curTS, timeLen, self.pairId)
+		return self.dataSource.getSigma(self.curTS, timeLen, pairId)
 
 	def getTotalBalance(self, userId = 0):
 		""" получение последней цены согласно таймеру """
