@@ -75,6 +75,8 @@ print(exchange.users)
 print(exchange.orders)
 print(exchange.reserves)
 
+print(exchange.getTotalBalance(userId, 24))
+print(exchange.getTotalBalance(userId, 25))
 
 #print(exchange.isInvestFeeByPairId(24))
 #print(exchange.isInvestFeeByPairId(25))

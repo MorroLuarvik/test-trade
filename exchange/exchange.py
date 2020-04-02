@@ -245,13 +245,17 @@ class Exchange:
 		""" get sigma """
 		return self.dataSource.getSigma(self.curTS, timeLen, pairId)
 
-	def getTotalBalance(self, userId = 0):
-		""" получение последней цены согласно таймеру """
-		lastPrice = self.getLastPrice()
+	def getTotalBalance(self, userId = 0, pairId = None):
+		""" получение баланса в sec_cur согласно последнему таймеру """
 		if not userId in self.users:
 			return False, "user with id: " + str(userId) + " is not registred"
+		
+		lastPrice = self.getLastPrice(pairId)
+		
+		mainCurAlias = self.getMainCurAliasByPairId(pairId)
+		secCurAlias = self.getSecCurAliasByPairId(pairId)
 
-		return self.users[userId]["balance"]["sec"] + self.users[userId]["balance"]["main"] * lastPrice + sum(val["amount"] * val["rate"] for val in self.orders.values() if val["user_id"] == userId and val["type"] == "buy") + sum(val["amount"] * lastPrice for val in self.orders.values() if val["user_id"] == userId and val["type"] == "sell")
+		return self.users[userId]["balance"][secCurAlias] + self.users[userId]["balance"][mainCurAlias] * lastPrice + sum(val["amount"] * val["rate"] for val in self.orders.values() if val["user_id"] == userId and val["type"] == "buy" and val["pair_id"] == pairId) + sum(val["amount"] * lastPrice for val in self.orders.values() if val["user_id"] == userId and val["type"] == "sell" and val["pair_id"] == pairId)
 
 	# ================================== get trade params ================================== #
 	def getMinOrderPrice(self, pairId = None):
