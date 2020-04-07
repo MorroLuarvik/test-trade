@@ -8,14 +8,6 @@ class Cascade(AbstractBot):
 
 	DECIMAL_PLACES = 8
 
-	"""
-	fee = 0.2
-	minPrice = 1e-8
-	maxPrice = 1
-	minAmount = 0.05
-	precision = 8
-	"""
-
 	exchange = None
 	pairId = None
 	curTS = None

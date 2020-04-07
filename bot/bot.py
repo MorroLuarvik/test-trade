@@ -6,11 +6,11 @@ from bot import Cascade
 
 class Bot:
 
-	fee = 0.2
-	minPrice = 1e-8
-	maxPrice = 1
-	minAmount = 0.05
-	precision = 8
+	fee = None
+	minPrice = None
+	maxPrice = None
+	minAmount = None
+	precision = None
 
 	exchange = None
 	pairId = None
@@ -21,6 +21,12 @@ class Bot:
 	def __init__(self, exchange = None, pairId = 0, botType = "cascade"):
 		self.exchange = exchange
 		self.pairId = pairId
+		
+		self.fee = self.exchange.getOrderFeeByPairId(self.pairId)
+		self.minPrice = self.exchange.getMinOrderPrice(self.pairId)
+		self.maxPrice = self.exchange.getMaxOrderPrice(self.pairId)
+		self.minAmount = self.exchange.getMinOrderAmount(self.pairId)
+		self.precision = self.exchange.getOrderPrecisionByPairId(self.pairId)
 
 		#create bot dependet by botType var
 		self.curBot = Cascade(self.exchange, self.pairId)
