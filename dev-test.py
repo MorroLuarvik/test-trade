@@ -31,6 +31,13 @@ dataSource = ExternalData(**configParams['external_db'])
 
 exchange = Exchange(dataSource)
 
+from bot import Bot
+
+startDate = StrToTS("2020.03.14 00:00:00")
+stopDate = StrToTS("2020.04.07 00:00:00")
+pairId = 24 # usd/rur exmo
+
+curBot = Bot(exchange, pairId)
 userId = exchange.register()
 
 print("user ID: {0}".format(userId))
