@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*-coding:utf-8-*-
 
-import MySQLdb
+from mysql import connector as MySQLdb
 
 class ExternalData:
 	SEC_ID_DAY = 24 * 3600
