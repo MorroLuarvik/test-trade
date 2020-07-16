@@ -1,5 +1,6 @@
 .directory
 .vscode
+.pytest_cache
 *.*~
 *.pyc
 *.db
