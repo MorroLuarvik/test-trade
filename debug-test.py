@@ -2,15 +2,20 @@
 #-*-coding:utf-8-*-
 """ Temporary test script for check any things """
 
-SEC_ID_DAY = 24 * 3600
+from configurator.configurator import get_config
+from mysql import connector
 
-import time
+connect = connector.connect(**get_config("mysql"))
+#print(connect)
 
-def TStoStr(ts = 0, format = "%Y.%m.%d %H:%M:%S"):
-	return time.strftime(format, time.localtime(ts))
+query = """
+	select *
+	from s_exchanges
+"""
 
-def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
-	return int(time.mktime(time.strptime(strTime, format)))
+cursor = connect.cursor(dictionary = True)
+cursor.execute(query)
+print(cursor.fetchall())
 
-startTS = StrToTS("2018.11.01 00:00:00")
-print(TStoStr(startTS + SEC_ID_DAY))
+print(connect.is_connected())
+connect.close()

@@ -72,4 +72,5 @@ class MySQL(AbstractDatasource):
 	# ----------------------------- реализация функций абстрактного класса ----------------------------- #
 
 	def __del__(self):
-		self.connect.close()
+		if self.connect.is_connected():
+			self.connect.close()
