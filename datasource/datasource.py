@@ -56,7 +56,7 @@ class Datasource(AbstractDatasource): # наследование от абстр
 		del(self.datasource_list[self.selected_datasource]["object"])
 
 	def _activate_datasource(self, key: str):
-		""" включение активного источника данных """
+		""" включение указанного источника данных """
 		self.selected_datasource = key
 		self.datasource_list[self.selected_datasource]["object"] = self.datasource_list[self.selected_datasource]["class"](**self.datasource_list[self.selected_datasource]["config"])
 
