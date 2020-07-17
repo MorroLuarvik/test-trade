@@ -4,6 +4,6 @@
 class AbstractDatasource:
     """ Абстрактный источник данных """
 
-    def get_exchanges(self):
+    def get_exchange(self):
         """ получить список бирж """
         raise NotImplementedError("Определите get_exchanges в %s." % (self.__class__.__name__))

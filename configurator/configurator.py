@@ -5,11 +5,11 @@ CONFIG_FILE_NAME = 'test_trade.json'
 CONFIG_FOLDER_NAME = 'configs'
 
 import os
-dirName, fileName = os.path.split(os.path.abspath(__file__))
 import json
 
 def get_config(key = ""):
 	""" загружаем файл конфигурации """
+	dirName, _ = os.path.split(os.path.abspath(__file__))
 	config_file_path = dirName + os.path.sep + '..' + os.path.sep + '..' + os.path.sep + CONFIG_FOLDER_NAME + os.path.sep + CONFIG_FILE_NAME
 	if not os.path.isfile(config_file_path):
 		raise Exception("Не найден файл конфигурации \"%s\"" % config_file_path)

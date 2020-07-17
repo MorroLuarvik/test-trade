@@ -11,7 +11,7 @@ class Datasource(AbstractDatasource):
 	selected_datasource = None
 
 	@classmethod
-	def register_datasource(cls, key: str, datasource, config = {}):
+	def register_datasource(cls, key: str, datasource: AbstractDatasource, config = {}):
 		""" Регистрация источника данных """
 		cls.datasource_list[key] = {"class": datasource, "config": config}
 		cls.selected_datasource = key
@@ -29,6 +29,12 @@ class Datasource(AbstractDatasource):
 		self._activate_datasource(key)
 
 	# ----------------------------- интерфейс функций разных реализаций источников данных ----------------------------- #
+	def get_exchange(self, **params):
+		""" получение списка бирж get_exchange(exch_id = None)"""
+		if not self._has_active_datasource():
+			self._activate_datasource(self.selected_datasource)
+
+		return self.datasource_list[self.selected_datasource]["object"].get_exchange(**params)
 	# ----------------------------- интерфейс функций разных реализаций источников данных ----------------------------- #
 
 	def _has_active_datasource(self): 
