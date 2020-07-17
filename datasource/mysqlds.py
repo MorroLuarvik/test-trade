@@ -26,11 +26,11 @@ class MySQL(AbstractDatasource):
 		""" получение списка бирж """
 		where_conditions = {"where": "1 = 1"}
 		
-		if exch_ids is not None:
+		if isinstance(exch_ids, int):
 			where_conditions = {"where": "exch_id = %s" % str(exch_ids)}
 
-			if misc.isIterable(exch_ids):
-				where_conditions = {"where": "exch_id in (%s)" % ", ".join(map(str, exch_ids))}
+		if misc.isIterable(exch_ids):
+			where_conditions = {"where": "exch_id in (%s)" % ", ".join(map(str, exch_ids))}
 
 		query = """
 			select

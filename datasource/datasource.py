@@ -4,7 +4,7 @@
 
 from .abstractdatasource import AbstractDatasource
 
-class Datasource: # (AbstractDatasource)
+class Datasource(AbstractDatasource): # наследование от абстрактного класса источника данных сделано для отображения всплывающих подсказок
 	""" Источник данных """
 	
 	datasource_list = {}
@@ -29,17 +29,19 @@ class Datasource: # (AbstractDatasource)
 		self._activate_datasource(key)
 
 	# ----------------------------- интерфейс функций разных реализаций источников данных ----------------------------- #
-	def __getattr__(self, name):
+	def __getattribute__(self, name):
+		""" перехват вызова любой функции """
+		if name not in [arg for arg in dir(AbstractDatasource) if not arg.startswith('_')]:
+			return super().__getattribute__(name) # метод не входит в абстрактный класс источника данных, значит просто его выполняем
+		
 		if not self._has_active_datasource():
 			self._activate_datasource(self.selected_datasource)
-
-		if name not in dir(self.datasource_list[self.selected_datasource]["object"]):
-			raise NotImplementedError("Нет метода %s в источнике данных %s." % (name, self.datasource_list[self.selected_datasource]["class"].__name__))
-
-		def wrapper(*args, **kwargs):
+		
+		def _wrapper(*args, **kwargs): 
+			""" передача параметров текущему источнику данных """
 			return getattr(self.datasource_list[self.selected_datasource]["object"], name)(*args, **kwargs)
 
-		return wrapper
+		return _wrapper # вызов метода в текущем источнике данных
 	# ----------------------------- интерфейс функций разных реализаций источников данных ----------------------------- #
 
 	def _has_active_datasource(self): 
