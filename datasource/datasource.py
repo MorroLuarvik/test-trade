@@ -2,7 +2,9 @@
 #-*-coding:utf-8-*-
 """ Источник данных """
 
-class Datasource():
+from .abstractdatasource import AbstractDatasource
+
+class Datasource(AbstractDatasource):
 	""" Источник данных """
 	
 	datasource_list = {}

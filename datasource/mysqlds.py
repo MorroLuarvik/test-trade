@@ -1,4 +1,8 @@
 #!/usr/bin/env python
 #-*-coding:utf-8-*-
 
-from mysql import connector as MySQLdb
+from .abstractdatasource import AbstractDatasource
+from mysql import connector
+
+class MySQL(AbstractDatasource):
+    """ Источник данных MySQL """
