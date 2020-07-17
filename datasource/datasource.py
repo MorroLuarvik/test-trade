@@ -4,7 +4,7 @@
 
 from .abstractdatasource import AbstractDatasource
 
-class Datasource(AbstractDatasource):
+class Datasource: # (AbstractDatasource)
 	""" Источник данных """
 	
 	datasource_list = {}
@@ -29,12 +29,17 @@ class Datasource(AbstractDatasource):
 		self._activate_datasource(key)
 
 	# ----------------------------- интерфейс функций разных реализаций источников данных ----------------------------- #
-	def get_exchange(self, **params):
-		""" получение списка бирж get_exchange(exch_id = None)"""
+	def __getattr__(self, name):
 		if not self._has_active_datasource():
 			self._activate_datasource(self.selected_datasource)
 
-		return self.datasource_list[self.selected_datasource]["object"].get_exchange(**params)
+		if name not in dir(self.datasource_list[self.selected_datasource]["object"]):
+			raise NotImplementedError("Нет метода %s в источнике данных %s." % (name, self.datasource_list[self.selected_datasource]["class"].__name__))
+
+		def wrapper(*args, **kwargs):
+			return getattr(self.datasource_list[self.selected_datasource]["object"], name)(*args, **kwargs)
+
+		return wrapper
 	# ----------------------------- интерфейс функций разных реализаций источников данных ----------------------------- #
 
 	def _has_active_datasource(self): 

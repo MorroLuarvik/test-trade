@@ -12,6 +12,6 @@ if __name__ == "__main__":
 
     #s = 1
     #print(", ".join(map(str, s)))
-    print(ds.get_exchange()) #exch_ids = (3, 2)
+    print(ds.get_exchange((1,2))) #exch_ids = (3, 2)
 
     #ds.get_pair
