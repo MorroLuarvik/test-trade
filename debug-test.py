@@ -2,20 +2,29 @@
 #-*-coding:utf-8-*-
 """ Temporary test script for check any things """
 
-from configurator.configurator import get_config
-from mysql import connector
+import misc
 
-connect = connector.connect(**get_config("mysql"))
-#print(connect)
+class Test:
+	def _construct_where_conditions(self, **where):
+		""" сборка where условия SQL запроса """
+		if len(where) == 0:
+			return " 1 = 1 "
+		
+		ret_array = []
+		for key, val in where.items():
+			if misc.isIterable(val):
+				ret_array.append("%s in (%s)" % (str(key),  ", ".join(map(str, val))))
+				continue
+			
+			if val is None:
+				ret_array.append("%s is null" % str(key))
+				continue
+			
+			ret_array.append("%s = %s" % (str(key) , str(val)))
+		
+		return " and ".join(ret_array)
 
-query = """
-	select *
-	from s_exchanges
-"""
+t = Test()
 
-cursor = connect.cursor(dictionary = True)
-cursor.execute(query)
-print(cursor.fetchall())
-
-print(connect.is_connected())
-connect.close()
+print(t._construct_where_conditions(a = None))
+#t._construct_where_conditions(pr = [2], s="lol")
