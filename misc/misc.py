@@ -15,3 +15,12 @@ def StrToTS(strTime = "2018.09.01 00:00:00", format = "%Y.%m.%d %H:%M:%S"):
 def ceil(i, n=0):
 	""" Отбрасываем дробную часть """ 
 	return int(i * 10 ** n) / float(10 ** n)
+
+def isIterable(obj):
+	""" Проверяем на итерируемость """
+	try:
+		_ = (e for e in obj)
+	except Exception:
+		return False
+	else:
+		return True	

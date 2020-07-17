@@ -9,4 +9,9 @@ import init
 if __name__ == "__main__":
     print("Запуск консоли")
     ds = Datasource()
-    print(ds.get_exchange(exch_id = 3))
+
+    #s = 1
+    #print(", ".join(map(str, s)))
+    print(ds.get_exchange()) #exch_ids = (3, 2)
+
+    #ds.get_pair
