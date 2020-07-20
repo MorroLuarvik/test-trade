@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*-coding:utf-8-*-
+""" инициализация источников данных и подготовка модулей """
 
 from datasource import Datasource, MySQL
 from configurator.configurator import get_config
